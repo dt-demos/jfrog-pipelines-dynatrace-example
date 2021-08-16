@@ -2,4 +2,4 @@ targetRepository:
 sourceRepository:
 imageName: busybox
 gitProvider: githubIntegration
-repoPath: busybox
+repoPath: dt-demos/jfrog-pipelines-dynatrace-example
