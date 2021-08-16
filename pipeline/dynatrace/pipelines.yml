@@ -143,8 +143,12 @@ pipelines:
           onExecute:
             - printenv
             - echo "Modifying helm chart properties"
+            - echo "${int_artifactoryIntegration_url}/api/storage/simplecharts/busybox-${res_simplehelmChart_aa_version}.tgz"
+            - echo "deployedOnCluster=${CLUSTER}"
+            - echo "helmInstallationName=${RELEASE_NAME}"
+            - echo "deploymentTimestamp=${TIME}"
             - echo "Set current time as a deployment time"
             - TIME=$(date +%s)
-            - curl --location --request PUT "${int_artifactoryIntegration_url}/api/storage/simplecharts/busybox-${res_simplehelmChart_aa_version}.tgz?properties=deployedOnCluster=${CLUSTER}%7ChelmInstallationName=${RELEASE_NAME}%7CdeploymentTimestamp=${TIME}" --header "Accept:application/json" --header "X-Jfrog-Art-Api:${int_artifactoryIntegration_apikey}"
+            - curl -v --location --request PUT "${int_artifactoryIntegration_url}/api/storage/simplecharts/busybox-${res_simplehelmChart_aa_version}.tgz?properties=deployedOnCluster=${CLUSTER}%7ChelmInstallationName=${RELEASE_NAME}%7CdeploymentTimestamp=${TIME}" --header "Accept:application/json" --header "X-Jfrog-Art-Api:${int_artifactoryIntegration_apikey}"
           onFailure:
             - echo "Failure"
