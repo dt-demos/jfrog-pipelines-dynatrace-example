@@ -8,6 +8,47 @@ resources:
         include: main
       buildOn:
         commit: true
+  
+  - name: simpleDockerImage
+    type: Image
+    configuration:
+      registry: simplehelmDockerIntegration             # Name of Docker integration in Artifactory instance
+      sourceRepository: {{ .Values.sourceRepository }}  # Docker repository name
+      imageName: {{ .Values.imageName }}                # Docker image name
+      imageTag: ${run_number}
+
+  - name: simpleBuildInfo
+    type: BuildInfo
+    configuration:
+      sourceArtifactory: artifactoryIntegration         # Your Artifactory integration
+      buildName: SampleApp                              # The name of the application image
+      buildNumber: ${run_number}
+
+  - name: simpleHelmChartBuildInfo
+    type: BuildInfo
+    configuration:
+      sourceArtifactory: artifactoryIntegration         # Your Artifactory integration
+      buildName: SampleApp                              # The name of the application Helm chart
+      buildNumber: 0.0.0                                # Starting build number, the following will be 0.0.1
+
+  - name: simplehelmRepoChart
+    type: GitRepo
+    configuration:
+      gitProvider: {{ .Values.gitProvider }}  # Name of GitHub integration, which provides connectivity to GitHub repo
+      path: {{ .Values.repoPath }}            # GitHub Repo path
+      branches:
+        include: main
+      buildOn:
+        commit: true
+
+  - name: simplehelmChart
+    type: HelmChart
+    configuration:
+      sourceArtifactory: artifactoryIntegration       # Your Artifactory integration
+      repository: simplecharts                        # Helm chart repository in your Artifactory instance
+      chart: busybox                                  # The name of the Helm chart
+      version: 0.0.0                                  # Starting version, the following will be 0.0.1
+
 
 pipelines:
   - name: dynatraceDemo
@@ -38,7 +79,7 @@ pipelines:
             - name: artifactoryIntegration                  # Your Artifactory integration
           targetRepository: {{ .Values.targetRepository }}  # Docker repository, where the image will be pushed
           inputSteps:
-            - name: build_image
+            - name: DockerBuild
           outputResources:
             - name: simpleBuildInfo                         # Build info updated after the step execution
             - name: simpleDockerImage                       # Docker image resource, created after the step execution
@@ -50,7 +91,7 @@ pipelines:
           chartPath: pipeline/dynatrace/busybox/            # Path to the Helm chart folder in the repo
           affinityGroup: helm_install
           inputSteps:
-            - name: push_image
+            - name: DockerPush
           inputResources:
             - name: simplehelmRepoChart
               trigger: false

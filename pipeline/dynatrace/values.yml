@@ -1,5 +1,5 @@
 targetRepository:
 sourceRepository:
-imageName:
-gitProvider:
-repoPath:
+imageName: busybox
+gitProvider: githubIntegration
+repoPath: busybox
