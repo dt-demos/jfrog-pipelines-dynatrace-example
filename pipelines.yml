@@ -8,4 +8,4 @@ pipelines:
             type: image
         execution:
           onExecute:
-            - printenv {{ .Values.gitProvider }}
+            - printenv "Hello There"
