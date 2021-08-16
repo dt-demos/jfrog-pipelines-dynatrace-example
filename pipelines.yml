@@ -8,4 +8,4 @@ pipelines:
             type: image
         execution:
           onExecute:
-            - printenv "Hello There"
+            - echo "Hello There"
