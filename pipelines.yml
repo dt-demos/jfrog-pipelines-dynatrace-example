@@ -88,7 +88,7 @@ pipelines:
         type: HelmPublish
         configuration:
           helmVersion: 3                                    # Use Helm version 3 to build the Helm chart
-          chartPath: pipeline/dynatrace/busybox/            # Path to the Helm chart folder in the repo
+          chartPath: pipeline/dynatrace/busybox/
           affinityGroup: helm_install
           inputSteps:
             - name: DockerPush
@@ -101,3 +101,4 @@ pipelines:
         execution:
           onStart:
             - echo "Start"
+            - printenv
