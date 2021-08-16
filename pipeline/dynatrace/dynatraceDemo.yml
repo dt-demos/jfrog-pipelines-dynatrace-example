@@ -1,0 +1,62 @@
+resources:
+  - name: githubIntegration
+    type: GitRepo
+    configuration:
+      gitProvider: {{ .Values.gitProvider }}  # Name of GitHub integration, which provides connectivity to GitHub repo
+      path: {{ .Values.repoPath }}            # GitHub Repo path, if path is modified, change the resource name as well
+      branches:
+        include: main
+      buildOn:
+        commit: true
+
+pipelines:
+  - name: dynatraceDemo
+    configuration:
+      environmentVariables:
+        readOnly:
+          my_releaseName: "busybox${run_number}"
+    steps:
+      - name: DockerBuild
+        type: DockerBuild
+        configuration:
+          affinityGroup: buildAndPush
+          integrations:
+            - name: artifactoryIntegration
+          inputResources:
+            - name: githubIntegration
+          dockerFileLocation: pipeline/dynatrace/       # Relative location of the Dockerfile in the GitHub repo
+          dockerFileName: Dockerfile
+          dockerImageName: {{ .Values.imageName }}
+          dockerImageTag: $run_number
+
+      - name: DockerPush
+        type: DockerPush
+        configuration:
+          affinityGroup: buildAndPush
+          autoPublishBuildInfo: true
+          integrations:
+            - name: artifactoryIntegration                  # Your Artifactory integration
+          targetRepository: {{ .Values.targetRepository }}  # Docker repository, where the image will be pushed
+          inputSteps:
+            - name: build_image
+          outputResources:
+            - name: simpleBuildInfo                         # Build info updated after the step execution
+            - name: simpleDockerImage                       # Docker image resource, created after the step execution
+
+      - name: HelmPublish
+        type: HelmPublish
+        configuration:
+          helmVersion: 3                                    # Use Helm version 3 to build the Helm chart
+          chartPath: pipeline/dynatrace/busybox/            # Path to the Helm chart folder in the repo
+          affinityGroup: helm_install
+          inputSteps:
+            - name: push_image
+          inputResources:
+            - name: simplehelmRepoChart
+              trigger: false
+          outputResources:
+            - name: simplehelmChart                        # Helm chart will be created and pushed to the repo, declared in simplehelmChart resource
+            - name: simpleHelmChartBuildInfo
+        execution:
+          onStart:
+            - echo "Start"
