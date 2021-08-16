@@ -7,12 +7,14 @@ replicaCount: 1
 image:
   repository: ${res_simpleDockerImage_imageName}
   tag: ${res_simpleDockerImage_imageTag}
-#  repository: nginx
-#  tag: stable
-  pullPolicy: IfNotPresent
+  pullPolicy: Always
 global:
   imagePullSecrets:
     - regcred
+
+labels:
+    component: order-service
+    version: ${res_simpleDockerImage_imageTag}
 
 nameOverride: ""
 fullnameOverride: ""

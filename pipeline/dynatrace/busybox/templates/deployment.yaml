@@ -7,6 +7,11 @@ metadata:
     chart: {{ include "busybox.chart" . }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
+    app.kubernetes.io/name: {{ template "chart.fullname" .}}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app.kubernetes.io/component: {{ .Values.labels.component }}
+    app.kubernetes.io/version: {{ .Values.labels.component }}
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
