@@ -14,7 +14,7 @@ resources:
     configuration:
       registry: artifactoryIntegration             # Name of Docker integration in Artifactory instance
       sourceRepository: default-docker-local  # Docker repository name
-      imageName: dynatracedemos.jfrog.io/art-docker-dynatrace/busybox                # Docker image name
+      imageName: dynatracedemos.jfrog.io/artifactory/art-docker-dynatrace/busybox                # Docker image name
       imageTag: ${run_number}
 
   - name: simpleBuildInfo
