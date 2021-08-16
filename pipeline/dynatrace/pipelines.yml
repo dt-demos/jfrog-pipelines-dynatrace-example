@@ -54,7 +54,7 @@ pipelines:
     configuration:
       environmentVariables:
         readOnly:
-          my_releaseName: "busybox${run_number}"
+          my_releaseName: "busybox"
     steps:
       - name: DockerBuild
         type: DockerBuild

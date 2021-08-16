@@ -13,8 +13,8 @@ global:
     - regcred
 
 labels:
-    component: order-service
-    version: ${res_simpleDockerImage_imageTag}
+  component: order-service
+  version: ${res_simpleDockerImage_imageTag}
 
 nameOverride: ""
 fullnameOverride: ""
