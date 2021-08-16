@@ -8,4 +8,4 @@ pipelines:
             type: image
         execution:
           onExecute:
-            - echo "Hello There"
+            - echo {{ .Values.gitProvider }}
