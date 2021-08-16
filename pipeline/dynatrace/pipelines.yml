@@ -1,5 +1,5 @@
 resources:
-  - name: githubIntegration
+  - name: github
     type: GitRepo
     configuration:
       gitProvider: githubIntegration                      # Name of GitHub integration, which provides connectivity to GitHub repo
@@ -47,7 +47,7 @@ resources:
       sourceArtifactory: artifactoryIntegration       # Your Artifactory integration
       repository: simplecharts                        # Helm chart repository in your Artifactory instance
       chart: busybox                                  # The name of the Helm chart
-      version: 0.0.0                                  # Starting version, the following will be 0.0.1
+      version: 0.1.0                                  
 
 pipelines:
   - name: dynatraceDemo
@@ -63,11 +63,11 @@ pipelines:
           integrations:
             - name: artifactoryIntegration
           inputResources:
-            - name: githubIntegration
+            - name: github
           dockerFileLocation: pipeline/dynatrace/       # Relative location of the Dockerfile in the GitHub repo
           dockerFileName: Dockerfile
           dockerImageName: dynatracedemos.jfrog.io/art-docker-dynatrace/busybox
-          dockerImageTag: $run_number
+          dockerImageTag: ${run_number}
 
       - name: DockerPush
         type: DockerPush
@@ -152,3 +152,32 @@ pipelines:
             - curl -v --location --request PUT "${int_artifactoryIntegration_url}/api/storage/simplecharts/busybox-${res_simplehelmChart_version}.tgz?properties=deployedOnCluster=${CLUSTER}%7ChelmInstallationName=${RELEASE_NAME}%7CdeploymentTimestamp=${TIME}" --header "Accept:application/json" --header "X-Jfrog-Art-Api:${int_artifactoryIntegration_apikey}"
           onFailure:
             - echo "Failure"
+
+      - name: Dynatrace_deployment_event
+        type: Bash
+        configuration:
+          affinityGroup: helm_install
+          integrations:
+            - name: artifactoryIntegration
+            - name: dynatraceIntegration
+          inputResources:
+            - name: github
+            - name: simplehelmChart
+          inputSteps:
+            - name: modify_properties
+        execution:
+          onStart:
+            - echo "Preparing for work..."
+          onExecute:
+            - printenv
+            - JSONOutput=$(curl --location --request GET "${int_artifactoryIntegration_url}/api/storage/simplecharts/busybox-${res_simplehelmChart_aa_version}.tgz?properties=helmInstallationName,chart.version,deployedOnCluster,vcs.url" --header "Accept:application/json" --header "X-Jfrog-Art-Api:${int_artifactoryIntegration_apikey}" | jq .)
+            - echo $JSONOutput
+            - ChartVersion=$(echo $JSONOutput | jq '.properties."chart.version"[0]')
+            - HelmInstallationName=$(echo $JSONOutput | jq '.properties.helmInstallationName[0]')
+            - VCS_URL=$(echo $JSONOutput | jq '.properties."vcs.url"[0]')
+            - DeployedOnCluster=$(echo $JSONOutput | jq '.properties.deployedOnCluster[0]')
+            - curl -H 'Content-Type:application/json' --location --request POST "https://${int_dynatraceIntegration_DT_URL}.live.dynatrace.com/api/v1/events"  -H 'Accept:application/json' -HAuthorization:"Api-Token ${int_dynatraceIntegration_DT_API_TOKEN}" -d "{\"eventType\":\"CUSTOM_DEPLOYMENT\",\"attachRules\":{\"tagRule\":{\"meTypes\":\"SERVICE\",\"tags\":[{\"context\":\"CONTEXTLESS\",\"key\":\"JFrog\",\"value\":\"busybox\"}]}},\"deploymentName\":\"RuntimeDeployment\",\"deploymentVersion\":\"${res_simplehelmChart_aa_version}\",\"deploymentProject\":\"BusyBox-nginx\",\"source\":\"${int_artifactoryIntegration_url}\",\"customProperties\":{\"ChartVersion\":${ChartVersion},\"JFrogArtifactoryUrl\":\"${int_artifactoryIntegration_url}\",\"HelmInstallationName\":${HelmInstallationName},\"RunNumber\":\"${run_number}\",\"DeployedOnCluster\":${DeployedOnCluster},\"VCS_URL\":${VCS_URL},\"DockerImageName\":\"${build_image_dockerImageName}\"}}"
+          onSuccess:
+            - echo ""
+          onFailure:
+            - echo "Failure"  
