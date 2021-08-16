@@ -8,4 +8,4 @@ pipelines:
             type: image
         execution:
           onExecute:
-            - echo "{{ .Values.gitProvider }}"
+            - echo "{{ Values.gitProvider }}"
