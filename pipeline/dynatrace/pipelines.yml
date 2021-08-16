@@ -102,3 +102,29 @@ pipelines:
           onStart:
             - echo "Start"
             - printenv
+
+      - name: HelmDeploy
+        type: HelmDeploy
+        configuration:
+          helmVersion: 3
+          affinityGroup: helm_install
+          releaseName: busybox${run_number}
+          integrations:
+            - name: k8sIntegration
+          inputResources:
+            - name: simplehelmChart
+            - name: simpleDockerImage
+          inputSteps:
+            - name: HelmPublish
+          valueFilePaths:
+            - values.yaml
+        execution:
+          onStart:
+            - kubectl config current-context
+            - add_run_variables CLUSTER="$(kubectl config current-context)"
+            - add_run_variables RELEASE_NAME="${my_releaseName}"
+            - printenv
+          onSuccess:
+            - kubectl get pods
+          onFailure:
+            - echo "Failure"
