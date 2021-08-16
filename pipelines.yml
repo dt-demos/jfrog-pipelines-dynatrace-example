@@ -12,7 +12,7 @@ resources:
   - name: simpleDockerImage
     type: Image
     configuration:
-      registry: simplehelmDockerIntegration             # Name of Docker integration in Artifactory instance
+      registry: artifactoryIntegration             # Name of Docker integration in Artifactory instance
       sourceRepository: default-docker-local  # Docker repository name
       imageName: dynatracedemos.jfrog.io/art-docker-dynatrace/busybox                # Docker image name
       imageTag: ${run_number}
