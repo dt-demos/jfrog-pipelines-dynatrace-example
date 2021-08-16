@@ -164,7 +164,7 @@ pipelines:
             - name: github
             - name: simplehelmChart
           inputSteps:
-            - name: modify_properties
+            - name: modifyHelmChartProperties
         execution:
           onStart:
             - echo "Preparing for work..."
