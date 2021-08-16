@@ -1,0 +1,11 @@
+pipelines:
+  - name: basic
+    steps:
+      - name: basic1
+        type: Bash
+        configuration:
+          runtime:
+            type: image
+        execution:
+          onExecute:
+            - echo {{ Values.gitProvider }}
