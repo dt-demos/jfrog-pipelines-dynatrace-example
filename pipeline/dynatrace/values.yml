@@ -1,5 +1,5 @@
-targetRepository: default-docker-local
-sourceRepository: default-docker-local
-imageName: busybox
-gitProvider: githubIntegration 
-repoPath: dt-demos/jfrog-pipelines-dynatrace-example
+targetRepository: "default-docker-local"
+sourceRepository: "default-docker-local"
+imageName: "dynatracedemos.jfrog.io/art-docker-dynatrace/busybox"
+gitProvider: "githubIntegration"
+repoPath: "dt-demos/jfrog-pipelines-dynatrace-example"

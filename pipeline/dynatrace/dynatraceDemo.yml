@@ -29,7 +29,7 @@ resources:
     configuration:
       sourceArtifactory: artifactoryIntegration         # Your Artifactory integration
       buildName: SampleApp                              # The name of the application Helm chart
-      buildNumber: 0.0.0                                # Starting build number, the following will be 0.0.1
+      buildNumber: '0.1.${run_number}'                  # Starting build number, the following will be 0.0.1
 
   - name: simplehelmRepoChart
     type: GitRepo
