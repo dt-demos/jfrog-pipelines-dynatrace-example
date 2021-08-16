@@ -1,103 +1,11 @@
-resources:
-  - name: githubIntegration
-    type: GitRepo
-    configuration:
-      gitProvider: {{ .Values.gitProvider }}  # Name of GitHub integration, which provides connectivity to GitHub repo
-      path: {{ .Values.repoPath }}            # GitHub Repo path, if path is modified, change the resource name as well
-      branches:
-        include: main
-      buildOn:
-        commit: true
-  
-  - name: simpleDockerImage
-    type: Image
-    configuration:
-      registry: simplehelmDockerIntegration             # Name of Docker integration in Artifactory instance
-      sourceRepository: {{ .Values.sourceRepository }}  # Docker repository name
-      imageName: {{ .Values.imageName }}                # Docker image name
-      imageTag: ${run_number}
-
-  - name: simpleBuildInfo
-    type: BuildInfo
-    configuration:
-      sourceArtifactory: artifactoryIntegration         # Your Artifactory integration
-      buildName: SampleApp                              # The name of the application image
-      buildNumber: ${run_number}
-
-  - name: simpleHelmChartBuildInfo
-    type: BuildInfo
-    configuration:
-      sourceArtifactory: artifactoryIntegration         # Your Artifactory integration
-      buildName: SampleApp                              # The name of the application Helm chart
-      buildNumber: '0.1.${run_number}'                  # Starting build number, the following will be 0.0.1
-
-  - name: simplehelmRepoChart
-    type: GitRepo
-    configuration:
-      gitProvider: {{ .Values.gitProvider }}  # Name of GitHub integration, which provides connectivity to GitHub repo
-      path: {{ .Values.repoPath }}            # GitHub Repo path
-      branches:
-        include: main
-      buildOn:
-        commit: true
-
-  - name: simplehelmChart
-    type: HelmChart
-    configuration:
-      sourceArtifactory: artifactoryIntegration       # Your Artifactory integration
-      repository: simplecharts                        # Helm chart repository in your Artifactory instance
-      chart: busybox                                  # The name of the Helm chart
-      version: 0.0.0                                  # Starting version, the following will be 0.0.1
-
-
 pipelines:
-  - name: dynatraceDemo
-    configuration:
-      environmentVariables:
-        readOnly:
-          my_releaseName: "busybox${run_number}"
+  - name: basic
     steps:
-      - name: DockerBuild
-        type: DockerBuild
+      - name: basic1
+        type: Bash
         configuration:
-          affinityGroup: buildAndPush
-          integrations:
-            - name: artifactoryIntegration
-          inputResources:
-            - name: githubIntegration
-          dockerFileLocation: pipeline/dynatrace/       # Relative location of the Dockerfile in the GitHub repo
-          dockerFileName: Dockerfile
-          dockerImageName: {{ .Values.imageName }}
-          dockerImageTag: $run_number
-
-      - name: DockerPush
-        type: DockerPush
-        configuration:
-          affinityGroup: buildAndPush
-          autoPublishBuildInfo: true
-          integrations:
-            - name: artifactoryIntegration                  # Your Artifactory integration
-          targetRepository: {{ .Values.targetRepository }}  # Docker repository, where the image will be pushed
-          inputSteps:
-            - name: DockerBuild
-          outputResources:
-            - name: simpleBuildInfo                         # Build info updated after the step execution
-            - name: simpleDockerImage                       # Docker image resource, created after the step execution
-
-      - name: HelmPublish
-        type: HelmPublish
-        configuration:
-          helmVersion: 3                                    # Use Helm version 3 to build the Helm chart
-          chartPath: pipeline/dynatrace/busybox/            # Path to the Helm chart folder in the repo
-          affinityGroup: helm_install
-          inputSteps:
-            - name: DockerPush
-          inputResources:
-            - name: simplehelmRepoChart
-              trigger: false
-          outputResources:
-            - name: simplehelmChart                        # Helm chart will be created and pushed to the repo, declared in simplehelmChart resource
-            - name: simpleHelmChartBuildInfo
+          runtime:
+            type: image
         execution:
-          onStart:
-            - echo "Start"
+          onExecute:
+            - printenv {{ .Values.gitProvider }}
