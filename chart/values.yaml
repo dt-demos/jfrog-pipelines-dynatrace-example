@@ -7,7 +7,7 @@ image:
 
 labels:
   app.kubernetes.io/name: demo
-  app.kubernetes.io/instance: ${res_catalogDockerImage_imageName}:${res_catalogDockerImage_imageTag}
+  app.kubernetes.io/instance: ${res_catalogDockerImage_imageName}_${res_catalogDockerImage_imageTag}
   app.kubernetes.io/managed-by: helm
   app.kubernetes.io/component: catalog-service
   app.kubernetes.io/version: ${res_catalogDockerImage_imageTag}
