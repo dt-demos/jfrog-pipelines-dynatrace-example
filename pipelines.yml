@@ -117,7 +117,6 @@ pipelines:
           helmVersion: 3
           affinityGroup: helm_install
           releaseName: catalog   #${run_number}
-          namespace: dev
           integrations:
             - name: k8sIntegration
           inputResources:
