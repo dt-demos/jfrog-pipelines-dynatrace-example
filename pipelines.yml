@@ -108,8 +108,6 @@ pipelines:
           outputResources:
             - name: catalogHelmChart                        # Helm chart will be created and pushed to the repo, declared in catalogHelmChart resource
             - name: catalogHelmChartBuildInfo
-          onFailure:
-            - echo "Failure"
 
       - name: HelmDeploy
         type: HelmDeploy
