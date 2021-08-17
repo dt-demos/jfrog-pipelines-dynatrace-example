@@ -54,7 +54,7 @@ pipelines:
             - name: artifactoryIntegration
           inputResources:
             - name: gitRepo
-          dockerFileLocation: order       # Relative location of the Dockerfile in the GitHub repo
+          dockerFileLocation: order/       # Relative location of the Dockerfile in the GitHub repo
           dockerFileName: Dockerfile
           dockerImageName: dynatracedemos.jfrog.io/art-docker-dynatrace/order
           dockerImageTag: ${run_number}
@@ -77,7 +77,7 @@ pipelines:
         type: HelmPublish
         configuration:
           helmVersion: 3                                    # Use Helm version 3 to build the Helm chart
-          chartPath: chart
+          chartPath: chart/
           affinityGroup: helm_install
           inputSteps:
             - name: DockerPush
