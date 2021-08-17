@@ -92,11 +92,6 @@ pipelines:
             - name: catalogHelmChart                        # Helm chart will be created and pushed to the repo, declared in catalogHelmChart resource
             - name: catalogHelmChartBuildInfo
         execution:
-          onStart:
-            - CHART_VERSION=catalog${run_number}
-            - pushd $res_gitRepo_resourcePath/chart
-            - "sed -ie \"s/^appVersion: .*$/appVersion: $CHART_VERSION/\" Chart.yaml"
-            - popd
           onFailure:
             - echo "Failure"
 
