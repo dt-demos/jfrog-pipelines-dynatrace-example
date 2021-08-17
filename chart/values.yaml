@@ -3,11 +3,9 @@ replicaCount: 1
 namespace: dev
 
 image:
-  repository: ${res_catalogDockerImage_imageName}
-  tag: ${res_catalogDockerImage_imageTag}
+  image: the_image
+  tag: the_tag
   imagePullPolicy: Always
-
-
 
 global:
   imagePullSecrets:
