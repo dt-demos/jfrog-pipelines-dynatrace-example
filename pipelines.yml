@@ -17,7 +17,7 @@ resources:
     type: FileSpec
     configuration:
       sourceArtifactory: artifactoryIntegration
-      pattern: "art-maven-dynatrace/dynatrace-demos/org/springframework/boot/microservice-kubernetes-demo-catalog/2.0.6.RELEASE/microservice-kubernetes-demo-catalog-2.0.6.RELEASE.jar"
+      pattern: "art-maven-dynatrace/demos/dt-orders/catalog-service/1/catalog-service-1.jar"
       recursive: false
       flat: true
 
@@ -57,6 +57,9 @@ pipelines:
       environmentVariables:
         readOnly:
           RELEASE_NAME: "catalog"
+        catalog-version:
+          default: 1
+          allowCustom: true
     steps:
       - name: DockerBuild
         type: DockerBuild
