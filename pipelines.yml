@@ -106,7 +106,7 @@ pipelines:
         configuration:
           helmVersion: 3
           affinityGroup: helm_install
-          releaseName: busybox${run_number}
+          releaseName: order${run_number}
           integrations:
             - name: k8sIntegration
           inputResources:
@@ -115,7 +115,7 @@ pipelines:
           inputSteps:
             - name: HelmPublish
           valueFilePaths:
-            - values.yaml
+            - chart/values.yaml
         execution:
           onStart:
             - kubectl config current-context
