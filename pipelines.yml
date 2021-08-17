@@ -114,7 +114,7 @@ pipelines:
         execution:
           onExecute:
             - kubectl config current-context
-            - ./makeNamespace.sh dev
+            - $res_gitRepo_resourcePath/makeNamespace.sh dev
 
       - name: HelmDeploy
         type: HelmDeploy
@@ -182,7 +182,7 @@ pipelines:
             - DEPLOYMENT_VERSION=${run_number}
             - CI_BACK_LINK="https://www.jfrog.com"
             - SOURCE="JFrog pipeline"
-            - OUTPUT=$(./sendDynatraceEvent.sh ${DT_BASEURL} ${DT_API_TOKEN} ${DEPLOYMENT_PROJECT} ${TAG_STAGE} ${TAG_SERVICE} ${DEPLOYMENT_VERSION} ${CI_BACK_LINK} ${SOURCE})
+            - OUTPUT=$($res_gitRepo_resourcePath/sendDynatraceEvent.sh ${DT_BASEURL} ${DT_API_TOKEN} ${DEPLOYMENT_PROJECT} ${TAG_STAGE} ${TAG_SERVICE} ${DEPLOYMENT_VERSION} ${CI_BACK_LINK} ${SOURCE})
           onSuccess:
             - echo "$OUTPUT"
           onFailure:
