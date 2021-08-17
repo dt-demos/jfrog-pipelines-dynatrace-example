@@ -5,8 +5,8 @@ FROM openjdk:15
 
 #RUN echo $RESOURCE_PATH
 #COPY $RESOURCE_PATH .
-RUN ls -l
 COPY *.jar .
+RUN ls -l
 
 # used to set the problem pattern
 ARG APP_VERSION=1
