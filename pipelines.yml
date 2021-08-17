@@ -25,14 +25,14 @@ resources:
     type: BuildInfo
     configuration:
       sourceArtifactory: artifactoryIntegration         # Your Artifactory integration
-      buildName: SampleApp                              # The name of the application image
+      buildName: order                                  # The name of the application image
       buildNumber: ${run_number}
 
   - name: orderHelmChartBuildInfo
     type: BuildInfo
     configuration:
       sourceArtifactory: artifactoryIntegration         # Your Artifactory integration
-      buildName: SampleApp                              # The name of the application Helm chart
+      buildName: order                                  # The name of the application Helm chart
       buildNumber: '0.1.${run_number}'                  # Starting build number, the following will be 0.0.1
 
   - name: orderHelmChart
@@ -58,10 +58,14 @@ pipelines:
             - name: artifactoryIntegration
           inputResources:
             - name: gitRepo
-          dockerFileLocation: "./order"       # Relative location of the Dockerfile in the GitHub repo
+          dockerFileLocation: order      # Relative location of the Dockerfile in the GitHub repo
           dockerFileName: Dockerfile
           dockerImageName: dynatracedemos.jfrog.io/art-docker-dynatrace/order
           dockerImageTag: ${run_number}
+        execution:
+          onStart:
+            - pwd
+            - ls -l
 
       - name: DockerPush
         type: DockerPush
