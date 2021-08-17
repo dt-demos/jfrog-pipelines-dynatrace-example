@@ -74,10 +74,8 @@ pipelines:
         execution:
           onStart:
             - pwd
-            - echo $HOME
             - ls -l ${pwd}
-            - ls -l $HOME
-            - ls -l $HOME/test
+            - ls -l ${pwd}/workspace
 
       - name: DockerPush
         type: DockerPush
