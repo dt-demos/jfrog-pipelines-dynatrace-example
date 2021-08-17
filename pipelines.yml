@@ -20,7 +20,6 @@ resources:
       pattern: "art-maven-dynatrace/dynatrace-demos/org/springframework/boot/microservice-kubernetes-demo-catalog/2.0.6.RELEASE/microservice-kubernetes-demo-catalog-2.0.6.RELEASE.jar"
       recursive: false
       flat: true
-      target: test
 
   - name: catalogDockerImage
     type: Image
