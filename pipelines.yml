@@ -103,6 +103,19 @@ pipelines:
             - "sed -ie \"s/^appVersion: .*$/appVersion: $CHART_VERSION/\" Chart.yaml"
             - popd
 
+      - name: MakeNamespace
+        type: Bash
+        configuration:
+          affinityGroup: helm_install
+          integrations:
+            - name: k8sIntegration
+          inputResources:
+            - name: gitRepo
+        execution:
+          onExecute:
+            - kubectl config current-context
+            - ./makeNamespace.sh dev
+
       - name: HelmDeploy
         type: HelmDeploy
         configuration:
@@ -119,7 +132,6 @@ pipelines:
         execution:
           onStart:
             - kubectl config current-context
-            - kubectl create ns dev
             - add_run_variables CLUSTER="$(kubectl config current-context)"
           onSuccess:
             - kubectl get pods
