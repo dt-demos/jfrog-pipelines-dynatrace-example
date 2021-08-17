@@ -102,9 +102,11 @@ pipelines:
             - VALUES_IMAGE=${res_catalogDockerImage_imageName}
             - VALUES_TAG=${res_catalogDockerImage_imageTag}
             - pushd $res_gitRepo_resourcePath/chart
-            - "sed -ie \"s/^image: .*$/image: $VALUES_IMAGE/\" values.yaml"
-            - "sed -ie \"s/^tag: .*$/tag: $VALUES_TAG/\" values.yaml"
+            - "sed -ie \"s/^  image: .*$/  image: $VALUES_IMAGE/\" values.yaml"
+            - "sed -ie \"s/^  tag: .*$/  tag: $VALUES_TAG/\" values.yaml"
             - "sed -ie \"s/^appVersion: .*$/appVersion: $CHART_VERSION/\" Chart.yaml"
+            - cat values.yaml
+            - cat Chart.yaml
             - popd
 
       - name: MakeNamespace
