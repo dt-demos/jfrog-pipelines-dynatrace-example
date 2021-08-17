@@ -94,6 +94,7 @@ pipelines:
           inputResources:
             - name: gitRepo
               trigger: false
+            - name: catalogDockerImage
           outputResources:
             - name: catalogHelmChart                        # Helm chart will be created and pushed to the repo, declared in catalogHelmChart resource
         execution:
@@ -101,6 +102,9 @@ pipelines:
             - CHART_VERSION=0.0.$run_number
             - VALUES_IMAGE=${res_catalogDockerImage_imageName}
             - VALUES_TAG=${res_catalogDockerImage_imageTag}
+            - echo "CHART_VERSION = $CHART_VERSION"
+            - echo "VALUES_IMAGE = $VALUES_IMAGE"
+            - echo "VALUES_TAG = $VALUES_TAG"
             - pushd $res_gitRepo_resourcePath/chart
             - "sed -ie \"s/^  image: .*$/  image: $VALUES_IMAGE/\" values.yaml"
             - "sed -ie \"s/^  tag: .*$/  tag: $VALUES_TAG/\" values.yaml"
