@@ -13,6 +13,13 @@ resources:
       buildOn:
         commit: true
   
+  - name: catalogFileSpec
+    type: FileSpec
+    configuration:
+      sourceArtifactory: artifactoryIntegration
+      pattern: "art-maven-dynatrace/dynatrace-demos/org/springframework/boot/microservice-kubernetes-demo-catalog/2.0.6.RELEASE/microservice-kubernetes-demo-catalog-2.0.6.RELEASE.jar"
+      recursive: false
+
   - name: catalogDockerImage
     type: Image
     configuration:
@@ -58,10 +65,15 @@ pipelines:
             - name: artifactoryIntegration
           inputResources:
             - name: gitRepo
+            - name: catalogFileSpec
           dockerFileLocation: catalog      # Relative location of the Dockerfile in the GitHub repo
           dockerFileName: Dockerfile
           dockerImageName: dynatracedemos.jfrog.io/art-docker-dynatrace/catalog
           dockerImageTag: ${run_number}
+        execution:
+          onExecute:
+            - pwd
+            - ls -l $HOME
 
       - name: DockerPush
         type: DockerPush
