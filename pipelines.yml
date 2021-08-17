@@ -118,6 +118,7 @@ pipelines:
         execution:
           onStart:
             - kubectl config current-context
+            - kubectl create ns dev
             - add_run_variables CLUSTER="$(kubectl config current-context)"
           onSuccess:
             - kubectl get pods
