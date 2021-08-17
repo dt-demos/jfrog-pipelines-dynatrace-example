@@ -36,13 +36,6 @@ resources:
       buildName: catalog                                  # The name of the application image
       buildNumber: ${run_number}
 
-  - name: catalogHelmChartBuildInfo
-    type: BuildInfo
-    configuration:
-      sourceArtifactory: artifactoryIntegration         # Your Artifactory integration
-      buildName: catalog                                  # The name of the application Helm chart
-      buildNumber: "0.1.${run_number}"                  # Starting build number, the following will be 0.0.1
-
   - name: catalogHelmChart
     type: HelmChart
     configuration:
@@ -97,9 +90,9 @@ pipelines:
       - name: HelmPublish
         type: HelmPublish
         configuration:
+          affinityGroup: helm_install
           helmVersion: 3                                    # Use Helm version 3 to build the Helm chart
           chartPath: chart
-          affinityGroup: helm_install
           inputSteps:
             - name: DockerPush
           inputResources:
@@ -107,24 +100,6 @@ pipelines:
               trigger: false
           outputResources:
             - name: catalogHelmChart                        # Helm chart will be created and pushed to the repo, declared in catalogHelmChart resource
-            - name: catalogHelmChartBuildInfo
-
-      - name: HelmDeploy
-        type: HelmDeploy
-        configuration:
-          helmVersion: 3
-          affinityGroup: helm_install
-          releaseName: catalog   #${run_number}
-          integrations:
-            - name: k8sIntegration
-          inputResources:
-            - name: gitRepo  #catalogHelmChart
-            - name: catalogDockerImage
-          inputSteps:
-            - name: HelmPublish
-          valueFilePaths:
-            - chart/values.yaml
-          chartPath: chart
         execution:
           onStart:
             - kubectl config current-context
@@ -135,6 +110,21 @@ pipelines:
             - popd
           onSuccess:
             - kubectl get pods
+
+      - name: HelmDeploy
+        type: HelmDeploy
+        configuration:
+          helmVersion: 3
+          affinityGroup: helm_install
+          releaseName: catalog   #${run_number}
+          namespace: dev
+          integrations:
+            - name: k8sIntegration
+          inputResources:
+            - name: catalogHelmChart
+          inputSteps:
+            - name: HelmPublish
+
 
       - name: modifyHelmChartProperties
         type: Bash
