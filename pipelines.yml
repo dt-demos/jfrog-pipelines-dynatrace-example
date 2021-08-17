@@ -99,16 +99,16 @@ pipelines:
             - name: catalogHelmChart                        # Helm chart will be created and pushed to the repo, declared in catalogHelmChart resource
         execution:
           onStart:
-            - CHART_VERSION=0.0.$run_number
+            - APP_VERSION=0.0.$run_number
             - VALUES_IMAGE=${res_catalogDockerImage_imageName}
             - VALUES_TAG=${res_catalogDockerImage_imageTag}
             - echo "CHART_VERSION = $CHART_VERSION"
             - echo "VALUES_IMAGE = $VALUES_IMAGE"
             - echo "VALUES_TAG = $VALUES_TAG"
             - pushd $res_gitRepo_resourcePath/chart
-            - "sed -ie \"s/^image: .*$/image: $VALUES_IMAGE/\" values.yaml"
-            - "sed -ie \"s/^imageTag: .*$/imageTag: $VALUES_TAG/\" values.yaml"
-            - "sed -ie \"s/^appVersion: .*$/appVersion: $CHART_VERSION/\" Chart.yaml"
+            - "sed -ie \"s|^image: .*$|image: $VALUES_IMAGE|\" values.yaml"
+            - "sed -ie \"s|^imageTag: .*$|imageTag: $VALUES_TAG|\" values.yaml"
+            - "sed -ie \"s|^appVersion: .*$|appVersion: $APP_VERSION|\" Chart.yaml"
             - cat values.yaml
             - cat Chart.yaml
             - popd
