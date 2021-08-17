@@ -2,12 +2,14 @@
 
 # reference: https://www.dynatrace.com/support/help/dynatrace-api/environment-api/events/post-event/
 # example arguments: dt-orders dev order-service 1 http://mycd-tool.com
-DEPLOYMENT_PROJECT=$1
-TAG_STAGE=$2
-TAG_SERVICE=$3
-DEPLOYMENT_VERSION=$4
-CI_BACK_LINK=$5
-SOURCE=$6
+DT_BASEURL=$1
+DT_API_TOKEN=$2
+DEPLOYMENT_PROJECT=$3
+TAG_STAGE=$4
+TAG_SERVICE=$5
+DEPLOYMENT_VERSION=$6
+CI_BACK_LINK=$7
+SOURCE=$8
 
 TAG_PROJECT=$DEPLOYMENT_PROJECT
 DT_API_URL="$DT_BASEURL/api/v1/events"

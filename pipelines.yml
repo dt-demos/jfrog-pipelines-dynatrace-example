@@ -41,15 +41,16 @@ resources:
     configuration:
       sourceArtifactory: artifactoryIntegration         # Your Artifactory integration
       buildName: catalog                                  # The name of the application Helm chart
-      buildNumber: '0.1.${run_number}'                  # Starting build number, the following will be 0.0.1
+      buildNumber: "0.1.${run_number}"                  # Starting build number, the following will be 0.0.1
 
   - name: catalogHelmChart
     type: HelmChart
     configuration:
       sourceArtifactory: artifactoryIntegration       # Your Artifactory integration
       repository: art_dynatrace_charts                # Helm chart repository in your Artifactory instance
-      chart: catalog                                    # The name of the Helm chart
-      version: 0.1.0                                  
+      chart: catalog                                  # The name of the Helm chart
+      version: 0.1.0
+      appVersion: "0.1.${run_number}"                               
 
 pipelines:
   - name: dynatraceDemo
@@ -177,7 +178,7 @@ pipelines:
             - echo "Preparing for work..."
           onExecute:
             - printenv
-            - JSONOutput=$(curl --location --request GET "${int_artifactoryIntegration_url}/api/storage/art_dynatrace_charts/catalog-${res_catalogHelmChart_aa_version}.tgz?properties=helmInstallationName,chart.version,deployedOnCluster,vcs.url" --header "Accept:application/json" --header "X-Jfrog-Art-Api:${int_artifactoryIntegration_apikey}" | jq .)
+            - JSONOutput=$(curl --location --request GET "${int_artifactoryIntegration_url}/api/storage/art_dynatrace_charts/catalog-${res_catalogHelmChart_version}.tgz?properties=helmInstallationName,chart.version,deployedOnCluster,vcs.url" --header "Accept:application/json" --header "X-Jfrog-Art-Api:${int_artifactoryIntegration_apikey}" | jq .)
             - echo $JSONOutput
             - ChartVersion=$(echo $JSONOutput | jq '.properties."chart.version"[0]')
             - HelmInstallationName=$(echo $JSONOutput | jq '.properties.helmInstallationName[0]')s
@@ -187,4 +188,31 @@ pipelines:
           onSuccess:
             - echo ""
           onFailure:
-            - echo "Failure"  
+            - echo "Failure"
+
+      - name: postDynatraceEvent
+        type: Bash
+        configuration:
+          affinityGroup: helm_install
+          integrations:
+            - name: dynatraceIntegration
+          inputResources:
+            - name: gitRepo
+            - name: catalogHelmChart
+          inputSteps:
+            - name: modifyHelmChartProperties
+        execution:
+          onExecute:
+            - DT_BASEURL=${int_dynatraceIntegration_DT_URL}
+            - DT_API_TOKEN=${int_dynatraceIntegration_DT_API_TOKEN}
+            - DEPLOYMENT_PROJECT=dt-orders
+            - TAG_STAGE=dev
+            - TAG_SERVICE=order-service
+            - DEPLOYMENT_VERSION=${run_number}
+            - CI_BACK_LINK="https://www.jfrog.com"
+            - SOURCE="JFrog pipeline"
+            - OUTPUT=$(./sendDynatraceEvent.sh ${DT_BASEURL} ${DT_API_TOKEN} ${DEPLOYMENT_PROJECT} ${TAG_STAGE} ${TAG_SERVICE} ${DEPLOYMENT_VERSION} ${CI_BACK_LINK} ${SOURCE})
+          onSuccess:
+            - echo "$OUTPUT"
+          onFailure:
+            - echo "$OUTPUT" 
