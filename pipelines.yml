@@ -120,7 +120,7 @@ pipelines:
           integrations:
             - name: k8sIntegration
           inputResources:
-            - name: GitRepo  #catalogHelmChart
+            - name: gitRepo  #catalogHelmChart
             - name: catalogDockerImage
           inputSteps:
             - name: HelmPublish
@@ -137,8 +137,6 @@ pipelines:
             - popd
           onSuccess:
             - kubectl get pods
-          onFailure:
-            - echo "Failure"
 
       - name: modifyHelmChartProperties
         type: Bash
