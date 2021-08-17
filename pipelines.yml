@@ -13,34 +13,34 @@ resources:
       buildOn:
         commit: true
   
-  - name: orderDockerImage
+  - name: catalogDockerImage
     type: Image
     configuration:
       registry: artifactoryIntegration                                    # Name of Docker integration in Artifactory instance
       sourceRepository: default-docker-local                              # Docker repository name
-      imageName: dynatracedemos.jfrog.io/art-docker-dynatrace/order       # Docker image name
+      imageName: dynatracedemos.jfrog.io/art-docker-dynatrace/catalog       # Docker image name
       imageTag: ${run_number}
 
-  - name: orderBuildInfo
+  - name: catalogBuildInfo
     type: BuildInfo
     configuration:
       sourceArtifactory: artifactoryIntegration         # Your Artifactory integration
-      buildName: order                                  # The name of the application image
+      buildName: catalog                                  # The name of the application image
       buildNumber: ${run_number}
 
-  - name: orderHelmChartBuildInfo
+  - name: catalogHelmChartBuildInfo
     type: BuildInfo
     configuration:
       sourceArtifactory: artifactoryIntegration         # Your Artifactory integration
-      buildName: order                                  # The name of the application Helm chart
+      buildName: catalog                                  # The name of the application Helm chart
       buildNumber: '0.1.${run_number}'                  # Starting build number, the following will be 0.0.1
 
-  - name: orderHelmChart
+  - name: catalogHelmChart
     type: HelmChart
     configuration:
       sourceArtifactory: artifactoryIntegration       # Your Artifactory integration
       repository: art_dynatrace_charts                # Helm chart repository in your Artifactory instance
-      chart: order                                    # The name of the Helm chart
+      chart: catalog                                    # The name of the Helm chart
       version: 0.1.0                                  
 
 pipelines:
@@ -48,7 +48,7 @@ pipelines:
     configuration:
       environmentVariables:
         readOnly:
-          RELEASE_NAME: "order"
+          RELEASE_NAME: "catalog"
     steps:
       - name: DockerBuild
         type: DockerBuild
@@ -58,9 +58,9 @@ pipelines:
             - name: artifactoryIntegration
           inputResources:
             - name: gitRepo
-          dockerFileLocation: order      # Relative location of the Dockerfile in the GitHub repo
+          dockerFileLocation: catalog      # Relative location of the Dockerfile in the GitHub repo
           dockerFileName: Dockerfile
-          dockerImageName: dynatracedemos.jfrog.io/art-docker-dynatrace/order
+          dockerImageName: dynatracedemos.jfrog.io/art-docker-dynatrace/catalog
           dockerImageTag: ${run_number}
         execution:
           onStart:
@@ -78,8 +78,8 @@ pipelines:
           inputSteps:
             - name: DockerBuild
           outputResources:
-            - name: orderBuildInfo                         # Build info updated after the step execution
-            - name: orderDockerImage                       # Docker image resource, created after the step execution
+            - name: catalogBuildInfo                         # Build info updated after the step execution
+            - name: catalogDockerImage                       # Docker image resource, created after the step execution
 
       - name: HelmPublish
         type: HelmPublish
@@ -93,8 +93,8 @@ pipelines:
             - name: gitRepo
               trigger: false
           outputResources:
-            - name: orderHelmChart                        # Helm chart will be created and pushed to the repo, declared in orderHelmChart resource
-            - name: orderHelmChartBuildInfo
+            - name: catalogHelmChart                        # Helm chart will be created and pushed to the repo, declared in catalogHelmChart resource
+            - name: catalogHelmChartBuildInfo
         execution:
           onStart:
             - printenv
@@ -106,12 +106,12 @@ pipelines:
         configuration:
           helmVersion: 3
           affinityGroup: helm_install
-          releaseName: order${run_number}
+          releaseName: catalog${run_number}
           integrations:
             - name: k8sIntegration
           inputResources:
-            - name: orderHelmChart
-            - name: orderDockerImage
+            - name: catalogHelmChart
+            - name: catalogDockerImage
           inputSteps:
             - name: HelmPublish
           valueFilePaths:
@@ -132,20 +132,20 @@ pipelines:
           integrations:
             - name: artifactoryIntegration
           inputResources:
-            - name: orderHelmChart
+            - name: catalogHelmChart
           inputSteps:
             - name: HelmDeploy
         execution:
           onExecute:
             - printenv
             - echo "Modifying helm chart properties"
-            - echo "${int_artifactoryIntegration_url}/api/storage/art_dynatrace_charts/order-${res_orderHelmChart_version}.tgz"
+            - echo "${int_artifactoryIntegration_url}/api/storage/art_dynatrace_charts/catalog-${res_catalogHelmChart_version}.tgz"
             - echo "deployedOnCluster=${CLUSTER}"
             - echo "helmInstallationName=${RELEASE_NAME}"
             - echo "deploymentTimestamp=${TIME}"
             - echo "Set current time as a deployment time"
             - TIME=$(date +%s)
-            - curl -v --location --request PUT "${int_artifactoryIntegration_url}/api/storage/art_dynatrace_charts/order-${res_orderHelmChart_version}.tgz?properties=deployedOnCluster=${CLUSTER}%7ChelmInstallationName=${RELEASE_NAME}%7CdeploymentTimestamp=${TIME}" --header "Accept:application/json" --header "X-Jfrog-Art-Api:${int_artifactoryIntegration_apikey}"
+            - curl -v --location --request PUT "${int_artifactoryIntegration_url}/api/storage/art_dynatrace_charts/catalog-${res_catalogHelmChart_version}.tgz?properties=deployedOnCluster=${CLUSTER}%7ChelmInstallationName=${RELEASE_NAME}%7CdeploymentTimestamp=${TIME}" --header "Accept:application/json" --header "X-Jfrog-Art-Api:${int_artifactoryIntegration_apikey}"
           onFailure:
             - echo "Failure"
 
@@ -158,7 +158,7 @@ pipelines:
             - name: dynatraceIntegration
           inputResources:
             - name: gitRepo
-            - name: orderHelmChart
+            - name: catalogHelmChart
           inputSteps:
             - name: modifyHelmChartProperties
         execution:
@@ -166,13 +166,13 @@ pipelines:
             - echo "Preparing for work..."
           onExecute:
             - printenv
-            - JSONOutput=$(curl --location --request GET "${int_artifactoryIntegration_url}/api/storage/art_dynatrace_charts/order-${res_orderHelmChart_aa_version}.tgz?properties=helmInstallationName,chart.version,deployedOnCluster,vcs.url" --header "Accept:application/json" --header "X-Jfrog-Art-Api:${int_artifactoryIntegration_apikey}" | jq .)
+            - JSONOutput=$(curl --location --request GET "${int_artifactoryIntegration_url}/api/storage/art_dynatrace_charts/catalog-${res_catalogHelmChart_aa_version}.tgz?properties=helmInstallationName,chart.version,deployedOnCluster,vcs.url" --header "Accept:application/json" --header "X-Jfrog-Art-Api:${int_artifactoryIntegration_apikey}" | jq .)
             - echo $JSONOutput
             - ChartVersion=$(echo $JSONOutput | jq '.properties."chart.version"[0]')
             - HelmInstallationName=$(echo $JSONOutput | jq '.properties.helmInstallationName[0]')s
             - VCS_URL=$(echo $JSONOutput | jq '.properties."vcs.url"[0]')
             - DeployedOnCluster=$(echo $JSONOutput | jq '.properties.deployedOnCluster[0]')
-            - curl -H 'Content-Type:application/json' --location --request POST "${int_dynatraceIntegration_DT_URL}.live.dynatrace.com/api/v1/events"  -H 'Accept:application/json' -HAuthorization:"Api-Token ${int_dynatraceIntegration_DT_API_TOKEN}" -d "{\"eventType\":\"CUSTOM_DEPLOYMENT\",\"attachRules\":{\"tagRule\":{\"meTypes\":\"SERVICE\",\"tags\":[{\"context\":\"CONTEXTLESS\",\"key\":\"JFrog\",\"value\":\"order\"}]}},\"deploymentName\":\"RuntimeDeployment\",\"deploymentVersion\":\"${res_orderHelmChart_version}\",\"deploymentProject\":\"Dynatrace Demo\",\"source\":\"${int_artifactoryIntegration_url}\",\"customProperties\":{\"ChartVersion\":${ChartVersion},\"JFrogArtifactoryUrl\":\"${int_artifactoryIntegration_url}\",\"HelmInstallationName\":${HelmInstallationName},\"RunNumber\":\"${run_number}\",\"DeployedOnCluster\":${DeployedOnCluster},\"VCS_URL\":${VCS_URL},\"DockerImageName\":\"${build_image_dockerImageName}\"}}"
+            - curl -H 'Content-Type:application/json' --location --request POST "${int_dynatraceIntegration_DT_URL}.live.dynatrace.com/api/v1/events"  -H 'Accept:application/json' -HAuthorization:"Api-Token ${int_dynatraceIntegration_DT_API_TOKEN}" -d "{\"eventType\":\"CUSTOM_DEPLOYMENT\",\"attachRules\":{\"tagRule\":{\"meTypes\":\"SERVICE\",\"tags\":[{\"context\":\"CONTEXTLESS\",\"key\":\"service\",\"value\":\"catalog\"}]}},\"deploymentName\":\"RuntimeDeployment\",\"deploymentVersion\":\"${res_catalogHelmChart_version}\",\"deploymentProject\":\"Dynatrace Demo\",\"source\":\"${int_artifactoryIntegration_url}\",\"customProperties\":{\"ChartVersion\":${ChartVersion},\"JFrogArtifactoryUrl\":\"${int_artifactoryIntegration_url}\",\"HelmInstallationName\":${HelmInstallationName},\"RunNumber\":\"${run_number}\",\"DeployedOnCluster\":${DeployedOnCluster},\"VCS_URL\":${VCS_URL},\"DockerImageName\":\"${build_image_dockerImageName}\"}}"
           onSuccess:
             - echo ""
           onFailure:

@@ -1,20 +1,16 @@
-# Default values for order.
-# This is a YAML-formatted file.
-# Declare variables to be passed into your templates.
-
 replicaCount: 1
 
 image:
-  repository: ${res_simpleDockerImage_imageName}
-  tag: ${res_simpleDockerImage_imageTag}
+  repository: ${res_catalogDockerImage_imageName}
+  tag: ${res_catalogDockerImage_imageTag}
   imagePullPolicy: Always
 
 labels:
   app.kubernetes.io/name: demo
-  app.kubernetes.io/instance: ${res_simpleDockerImage_imageName}:${res_simpleDockerImage_imageTag}
+  app.kubernetes.io/instance: ${res_catalogDockerImage_imageName}:${res_catalogDockerImage_imageTag}
   app.kubernetes.io/managed-by: helm
-  app.kubernetes.io/component: order-service
-  app.kubernetes.io/version: ${res_simpleDockerImage_imageTag}
+  app.kubernetes.io/component: catalog-service
+  app.kubernetes.io/version: ${res_catalogDockerImage_imageTag}
 
 global:
   imagePullSecrets:
