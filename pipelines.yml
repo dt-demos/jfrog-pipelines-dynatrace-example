@@ -73,9 +73,8 @@ pipelines:
           dockerImageTag: ${run_number}
         execution:
           onStart:
-            - pwd
-            - ls -l ${pwd}
-            - ls -l "${pwd}/workspace"
+            - echo ${res_catalogFileSpec_resourcePath}
+            - ls -l ${res_catalogFileSpec_resourcePath}
 
       - name: DockerPush
         type: DockerPush
