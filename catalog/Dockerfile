@@ -1,5 +1,9 @@
 FROM openjdk:15
-COPY target/*.jar .
+
+ARG RESOURCE_PATH=target/
+ENV RESOURCE_PATH=$RESOURCE_PATH
+
+COPY $RESOURCE_PATH/*.jar .
 
 # used to set the problem pattern
 ARG APP_VERSION=1

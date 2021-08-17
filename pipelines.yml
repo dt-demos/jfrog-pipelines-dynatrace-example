@@ -19,6 +19,7 @@ resources:
       sourceArtifactory: artifactoryIntegration
       pattern: "art-maven-dynatrace/dynatrace-demos/org/springframework/boot/microservice-kubernetes-demo-catalog/2.0.6.RELEASE/microservice-kubernetes-demo-catalog-2.0.6.RELEASE.jar"
       recursive: false
+      flat: true
       target: test
 
   - name: catalogDockerImage
@@ -71,6 +72,7 @@ pipelines:
           dockerFileName: Dockerfile
           dockerImageName: dynatracedemos.jfrog.io/art-docker-dynatrace/catalog
           dockerImageTag: ${run_number}
+          dockerOptions: --build-arg RESOURCE_PATH=${res_catalogFileSpec_resourcePath}
         execution:
           onStart:
             - echo ${res_catalogFileSpec_resourcePath}
