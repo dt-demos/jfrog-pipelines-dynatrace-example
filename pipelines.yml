@@ -1,3 +1,7 @@
+# https://www.jfrog.com/confluence/display/JFROG/MvnBuild
+# https://www.jfrog.com/confluence/display/JFROG/Setting+Up+Maven+Builds+for+Pipelines
+# https://www.jfrog.com/confluence/display/RTF6X/Maven+Artifactory+Plugin
+
 resources:
   - name: gitRepo
     type: GitRepo
@@ -5,7 +9,7 @@ resources:
       gitProvider: githubIntegration                      # Name of GitHub integration, which provides connectivity to GitHub repo
       path: dt-demos/jfrog-pipelines-dynatrace-example    # GitHub Repo path, if path is modified, change the resource name as well
       branches:
-        include: main
+        include: demo
       buildOn:
         commit: true
   
@@ -54,7 +58,7 @@ pipelines:
             - name: artifactoryIntegration
           inputResources:
             - name: gitRepo
-          dockerFileLocation: order/       # Relative location of the Dockerfile in the GitHub repo
+          dockerFileLocation: "./order"       # Relative location of the Dockerfile in the GitHub repo
           dockerFileName: Dockerfile
           dockerImageName: dynatracedemos.jfrog.io/art-docker-dynatrace/order
           dockerImageTag: ${run_number}
