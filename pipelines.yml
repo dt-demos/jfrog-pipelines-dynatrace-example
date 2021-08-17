@@ -62,10 +62,6 @@ pipelines:
           dockerFileName: Dockerfile
           dockerImageName: dynatracedemos.jfrog.io/art-docker-dynatrace/catalog
           dockerImageTag: ${run_number}
-        execution:
-          onStart:
-            - pwd
-            - ls -l
 
       - name: DockerPush
         type: DockerPush
