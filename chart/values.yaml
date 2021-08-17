@@ -2,10 +2,9 @@ replicaCount: 1
 
 namespace: dev
 
-image:
-  image: the_image
-  tag: the_tag
-  imagePullPolicy: Always
+image: the_image
+imageTag: the_tag
+imagePullPolicy: Always
 
 global:
   imagePullSecrets:

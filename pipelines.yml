@@ -106,8 +106,8 @@ pipelines:
             - echo "VALUES_IMAGE = $VALUES_IMAGE"
             - echo "VALUES_TAG = $VALUES_TAG"
             - pushd $res_gitRepo_resourcePath/chart
-            - "sed -ie \"s/^  image: .*$/  image: $VALUES_IMAGE/\" values.yaml"
-            - "sed -ie \"s/^  tag: .*$/  tag: $VALUES_TAG/\" values.yaml"
+            - "sed -ie \"s/^image: .*$/image: $VALUES_IMAGE/\" values.yaml"
+            - "sed -ie \"s/^imageTag: .*$/imageTag: $VALUES_TAG/\" values.yaml"
             - "sed -ie \"s/^appVersion: .*$/appVersion: $CHART_VERSION/\" Chart.yaml"
             - cat values.yaml
             - cat Chart.yaml
