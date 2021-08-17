@@ -141,7 +141,7 @@ pipelines:
           onFailure:
             - echo "Failure"
 
-      - name: Dynatrace_deployment_event
+      - name: postDynatraceEvent
         type: Bash
         configuration:
           affinityGroup: helm_install
