@@ -113,6 +113,7 @@ pipelines:
             - name: k8sIntegration
           inputResources:
             - name: catalogHelmChart
+            - name: catalogDockerImage
           inputSteps:
             - name: HelmPublish
         execution:
