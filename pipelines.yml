@@ -85,7 +85,7 @@ pipelines:
         type: HelmPublish
         configuration:
           helmVersion: 3                                    # Use Helm version 3 to build the Helm chart
-          chartPath: chart/
+          chartPath: chart
           affinityGroup: helm_install
           inputSteps:
             - name: DockerPush
