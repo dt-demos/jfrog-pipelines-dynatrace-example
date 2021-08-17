@@ -75,7 +75,7 @@ pipelines:
           onStart:
             - pwd
             - ls -l ${pwd}
-            - ls -l ${pwd}/workspace
+            - ls -l "${pwd}/workspace"
 
       - name: DockerPush
         type: DockerPush
