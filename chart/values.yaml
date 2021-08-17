@@ -1,0 +1,21 @@
+# Default values for order.
+# This is a YAML-formatted file.
+pullPolicy# Declare variables to be passed into your templates.
+
+replicaCount: 1
+
+image:
+  repository: ${res_simpleDockerImage_imageName}
+  tag: ${res_simpleDockerImage_imageTag}
+  : Always
+
+labels:
+  app.kubernetes.io/name: {{ template "chart.fullname" .}}
+  app.kubernetes.io/instance: {{ .Release.Name }}
+  app.kubernetes.io/managed-by: {{ .Release.Service }}
+  app.kubernetes.io/component: order-service
+  app.kubernetes.io/version: ${res_simpleDockerImage_imageTag}
+
+global:
+  imagePullSecrets:
+    - regcred       # kubectl secret name - # https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/

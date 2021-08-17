@@ -1,5 +1,0 @@
-apiVersion: v2
-appVersion: "${res_simpleDockerImage_imageName}"
-description: A Helm chart for Kubernetes
-name: busybox
-version: 0.1.0
