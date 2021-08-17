@@ -49,8 +49,7 @@ resources:
       sourceArtifactory: artifactoryIntegration       # Your Artifactory integration
       repository: art_dynatrace_charts                # Helm chart repository in your Artifactory instance
       chart: catalog                                  # The name of the Helm chart
-      version: 0.1.0
-      appVersion: "0.1.${run_number}"                               
+      version: 0.1.0                              
 
 pipelines:
   - name: dynatraceDemo
@@ -110,7 +109,12 @@ pipelines:
             - name: catalogHelmChart                        # Helm chart will be created and pushed to the repo, declared in catalogHelmChart resource
             - name: catalogHelmChartBuildInfo
         execution:
-          onFailure:
+          onStart:
+            - CHART_VERSION=0.0.$run_number
+            - pushd $res_app_gitRepo_resourcePath/chart
+            - "sed -ie \"s/^appVersion: .*$/appVersion: $CHART_VERSION/\" Chart.yaml"
+            - popdon
+          Failure:
             - echo "Failure"
 
       - name: HelmDeploy
@@ -158,35 +162,6 @@ pipelines:
             - echo "Set current time as a deployment time"
             - TIME=$(date +%s)
             - curl -v --location --request PUT "${int_artifactoryIntegration_url}/api/storage/art_dynatrace_charts/catalog-${res_catalogHelmChart_version}.tgz?properties=deployedOnCluster=${CLUSTER}%7ChelmInstallationName=${RELEASE_NAME}%7CdeploymentTimestamp=${TIME}" --header "Accept:application/json" --header "X-Jfrog-Art-Api:${int_artifactoryIntegration_apikey}"
-          onFailure:
-            - echo "Failure"
-
-      - name: postDynatraceEvent
-        type: Bash
-        configuration:
-          affinityGroup: helm_install
-          integrations:
-            - name: artifactoryIntegration
-            - name: dynatraceIntegration
-          inputResources:
-            - name: gitRepo
-            - name: catalogHelmChart
-          inputSteps:
-            - name: modifyHelmChartProperties
-        execution:
-          onStart:
-            - echo "Preparing for work..."
-          onExecute:
-            - printenv
-            - JSONOutput=$(curl --location --request GET "${int_artifactoryIntegration_url}/api/storage/art_dynatrace_charts/catalog-${res_catalogHelmChart_version}.tgz?properties=helmInstallationName,chart.version,deployedOnCluster,vcs.url" --header "Accept:application/json" --header "X-Jfrog-Art-Api:${int_artifactoryIntegration_apikey}" | jq .)
-            - echo $JSONOutput
-            - ChartVersion=$(echo $JSONOutput | jq '.properties."chart.version"[0]')
-            - HelmInstallationName=$(echo $JSONOutput | jq '.properties.helmInstallationName[0]')s
-            - VCS_URL=$(echo $JSONOutput | jq '.properties."vcs.url"[0]')
-            - DeployedOnCluster=$(echo $JSONOutput | jq '.properties.deployedOnCluster[0]')
-            - curl -H 'Content-Type:application/json' --location --request POST "${int_dynatraceIntegration_DT_URL}.live.dynatrace.com/api/v1/events"  -H 'Accept:application/json' -HAuthorization:"Api-Token ${int_dynatraceIntegration_DT_API_TOKEN}" -d "{\"eventType\":\"CUSTOM_DEPLOYMENT\",\"attachRules\":{\"tagRule\":{\"meTypes\":\"SERVICE\",\"tags\":[{\"context\":\"CONTEXTLESS\",\"key\":\"service\",\"value\":\"catalog\"}]}},\"deploymentName\":\"RuntimeDeployment\",\"deploymentVersion\":\"${res_catalogHelmChart_version}\",\"deploymentProject\":\"Dynatrace Demo\",\"source\":\"${int_artifactoryIntegration_url}\",\"customProperties\":{\"ChartVersion\":${ChartVersion},\"JFrogArtifactoryUrl\":\"${int_artifactoryIntegration_url}\",\"HelmInstallationName\":${HelmInstallationName},\"RunNumber\":\"${run_number}\",\"DeployedOnCluster\":${DeployedOnCluster},\"VCS_URL\":${VCS_URL},\"DockerImageName\":\"${build_image_dockerImageName}\"}}"
-          onSuccess:
-            - echo ""
           onFailure:
             - echo "Failure"
 
