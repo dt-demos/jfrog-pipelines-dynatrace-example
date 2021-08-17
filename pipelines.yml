@@ -116,16 +116,17 @@ pipelines:
         configuration:
           helmVersion: 3
           affinityGroup: helm_install
-          releaseName: catalog${run_number}
+          releaseName: catalog   #${run_number}
           integrations:
             - name: k8sIntegration
           inputResources:
-            - name: catalogHelmChart
+            - name: GitRepo  #catalogHelmChart
             - name: catalogDockerImage
           inputSteps:
             - name: HelmPublish
           valueFilePaths:
             - chart/values.yaml
+          chartPath: chart
         execution:
           onStart:
             - kubectl config current-context
