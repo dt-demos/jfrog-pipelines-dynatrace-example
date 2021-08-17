@@ -119,7 +119,7 @@ pipelines:
           onStart:
             - kubectl config current-context
             - add_run_variables CLUSTER="$(kubectl config current-context)"
-          sonSuccess:
+          onSuccess:
             - kubectl get pods
 
 
