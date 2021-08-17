@@ -71,7 +71,7 @@ pipelines:
           dockerImageName: dynatracedemos.jfrog.io/art-docker-dynatrace/catalog
           dockerImageTag: ${run_number}
         execution:
-          onExecute:
+          onStart:
             - pwd
             - ls -l $HOME
 
