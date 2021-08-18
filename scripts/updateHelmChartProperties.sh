@@ -11,7 +11,7 @@ CHART=$4
 CLUSTER=$5
 
 TIME=$(date +%s)
-JFROG_CHART_URL=${JFROG_BASE_URL}/artifactory/api/storage/${CHART_REPO }/${CHART}.tgz
+JFROG_CHART_URL=${JFROG_BASE_URL}/artifactory/api/storage/${CHART_REPO}/${CHART}.tgz
 JFROG_FULL_URL=${JFROG_CHART_URL}?properties=deployedOnCluster=${CLUSTER}%7CdeploymentTimestamp=${TIME}
 
 echo "================================================================="
