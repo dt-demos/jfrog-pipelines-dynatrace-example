@@ -7,13 +7,11 @@ spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      app: catalog-service
-      part-of: dt-orders
+      app.kubernetes.io/component: service
+      app.kubernetes.io/part-of: dt-orders
   template:
     metadata:
       labels:
-        app: catalog-service
-        part-of: dt-orders
         app.kubernetes.io/name: catalog-service
         app.kubernetes.io/version: "{{ .Values.imageTag }}"
         app.kubernetes.io/component: service
