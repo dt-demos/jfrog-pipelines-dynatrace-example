@@ -83,6 +83,21 @@ pipelines:
             - name: catalogBuildInfo                         # Build info updated after the step execution
             - name: catalogDockerImage                       # Docker image resource, created after the step execution
 
+      - name: MakeNamespace
+        type: Bash
+        configuration:
+          affinityGroup: helm_install
+          integrations:
+            - name: k8sIntegration
+          inputResources:
+            - name: gitRepo
+          inputSteps:
+            - name: DockerPush
+        execution:
+          onExecute:
+            - kubectl config current-context
+            - $res_gitRepo_resourcePath/makeNamespace.sh dev
+
       - name: HelmPublish
         type: HelmPublish
         configuration:
@@ -112,21 +127,6 @@ pipelines:
             - cat values.yaml
             - cat Chart.yaml
             - popd
-
-      - name: MakeNamespace
-        type: Bash
-        configuration:
-          affinityGroup: helm_install
-          integrations:
-            - name: k8sIntegration
-          inputResources:
-            - name: gitRepo
-          inputSteps:
-            - name: HelmPublish
-        execution:
-          onExecute:
-            - kubectl config current-context
-            - $res_gitRepo_resourcePath/makeNamespace.sh dev
 
       - name: HelmDeploy
         type: HelmDeploy
