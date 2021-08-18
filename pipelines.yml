@@ -136,6 +136,7 @@ pipelines:
           releaseName: catalog   #${run_number}
           integrations:
             - name: k8sIntegration
+            - name: artifactoryIntegration
           inputResources:
             - name: catalogHelmChart
             - name: catalogDockerImage
