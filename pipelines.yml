@@ -129,6 +129,8 @@ pipelines:
       - name: HelmDeploy
         type: HelmDeploy
         configuration:
+          lint: true
+          dryRun: true 
           helmVersion: 3
           affinityGroup: helm_install
           releaseName: catalog   #${run_number}
