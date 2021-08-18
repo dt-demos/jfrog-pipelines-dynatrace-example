@@ -10,7 +10,7 @@ resources:
       buildOn:
         commit: true
   
-  - name: catalogFileSpec
+  - name: catalogBuildFiles
     type: FileSpec
     configuration:
       sourceArtifactory: artifactoryIntegration
@@ -49,7 +49,6 @@ pipelines:
           DT_TAG_PROJECT: "dt-orders"
           DT_TAG_STAGE: "dev"
           DT_TAG_SERVICE: "order-service"
-          CHART_REPO: ${res_catalogHelmChart_repository}
 
     steps:
       - name: DockerBuild
@@ -60,12 +59,11 @@ pipelines:
             - name: artifactoryIntegration
           inputResources:
             - name: gitRepo
-            - name: catalogFileSpec
+            - name: catalogBuildFiles
           dockerFileLocation: catalog
           dockerFileName: Dockerfile
           dockerImageName: dynatracedemos.jfrog.io/art-docker-dynatrace/catalog
           dockerImageTag: ${run_number}
-          dockerOptions: --build-arg RESOURCE_PATH=${res_catalogFileSpec_resourcePath}
 
       - name: DockerPush
         type: DockerPush
@@ -84,7 +82,7 @@ pipelines:
       - name: HelmPublish
         type: HelmPublish
         configuration:
-          affinityGroup: helm_install
+          affinityGroup: HelmPublish
           helmVersion: 3                                    
           chartPath: chart
           inputSteps:
@@ -117,7 +115,7 @@ pipelines:
           lint: true
           dryRun: true 
           helmVersion: 3
-          affinityGroup: helm_install
+          affinityGroup: HelmDeploy
           releaseName: catalog
           integrations:
             - name: k8sIntegration
@@ -136,7 +134,7 @@ pipelines:
       - name: modifyHelmChartProperties
         type: Bash
         configuration:
-          affinityGroup: helm_install
+          affinityGroup: HelmDeploy
           integrations:
             - name: artifactoryIntegration
           inputResources:
@@ -148,13 +146,14 @@ pipelines:
           onExecute:
             - JFROG_BASE_URL=${int_artifactoryIntegration_url
             - JFROG_API_KEY=${int_artifactoryIntegration_apikey}
+            - CHART_REPO=${res_catalogHelmChart_repository}
             - CHART=catalog-${res_catalogHelmChart_version}
-            - $res_gitRepo_resourcePath/updateHelmChartProperties.sh ${JFROG_BASE_URL} ${JFROG_API_KEY} ${CHART_REPO} ${CHART} ${CLUSTER}
+            - $res_gitRepo_resourcePath/scripts/updateHelmChartProperties.sh ${JFROG_BASE_URL} ${JFROG_API_KEY} ${CHART_REPO} ${CHART} ${CLUSTER}
 
       - name: postDynatraceEvent
         type: Bash
         configuration:
-          affinityGroup: helm_install
+          affinityGroup: HelmDeploy
           integrations:
             - name: dynatraceIntegration
           inputResources:
@@ -169,4 +168,4 @@ pipelines:
             - DEPLOYMENT_VERSION=${run_number}
             - CI_BACK_LINK=${JFROG_CLI_BUILD_URL}
             - SOURCE="JFrog pipeline"
-            - $res_gitRepo_resourcePath/sendDynatraceEvent.sh ${DT_BASEURL} ${DT_API_TOKEN} ${DT_TAG_PROJECT} ${DT_TAG_STAGE} ${DT_TAG_SERVICE} ${DEPLOYMENT_VERSION} ${CI_BACK_LINK} ${SOURCE}
+            - $res_gitRepo_resourcePath/scripts/sendDynatraceEvent.sh ${DT_BASEURL} ${DT_API_TOKEN} ${DT_TAG_PROJECT} ${DT_TAG_STAGE} ${DT_TAG_SERVICE} ${DEPLOYMENT_VERSION} ${CI_BACK_LINK} ${SOURCE}
