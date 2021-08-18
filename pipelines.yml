@@ -133,7 +133,7 @@ pipelines:
           dryRun: true 
           helmVersion: 3
           affinityGroup: helm_install
-          releaseName: catalog   #${run_number}
+          releaseName: catalog
           integrations:
             - name: k8sIntegration
             - name: artifactoryIntegration
