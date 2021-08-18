@@ -21,7 +21,6 @@
 # You must configure your local kubectl to point to the right k8s cluster and
 # have admin-level access.
 
-
 set -eu -o pipefail
 
 # Allow passing in common name and username in environment. If not provided,
