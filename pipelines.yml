@@ -144,7 +144,7 @@ pipelines:
             - name: HelmDeploy
         execution:
           onExecute:
-            - JFROG_BASE_URL=${int_artifactoryIntegration_url
+            - JFROG_BASE_URL=${int_artifactoryIntegration_url}
             - JFROG_API_KEY=${int_artifactoryIntegration_apikey}
             - CHART_REPO=${res_catalogHelmChart_repository}
             - CHART=catalog-${res_catalogHelmChart_version}
