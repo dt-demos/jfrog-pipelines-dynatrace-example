@@ -131,6 +131,7 @@ pipelines:
             - name: HelmPublish
         execution:
           onStart:
+            - printenv
             - kubectl config current-context
             - add_run_variables CLUSTER="$(kubectl config current-context)"
           onSuccess:
