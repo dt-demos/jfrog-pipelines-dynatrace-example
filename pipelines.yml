@@ -132,6 +132,7 @@ pipelines:
         execution:
           onStart:
             - printenv
+            - cat ${KUBECONFIG}
             - kubectl config current-context
             - add_run_variables CLUSTER="$(kubectl config current-context)"
           onSuccess:
