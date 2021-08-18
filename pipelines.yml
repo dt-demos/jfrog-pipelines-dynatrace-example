@@ -121,6 +121,8 @@ pipelines:
             - name: k8sIntegration
           inputResources:
             - name: gitRepo
+          inputSteps:
+            - name: HelmPublish
         execution:
           onExecute:
             - kubectl config current-context
