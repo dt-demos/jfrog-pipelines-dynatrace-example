@@ -1,9 +1,10 @@
 resources:
-  - name: gitRepo
-    type: GitRepo
+
+  - name: gitRepo   
+    type: GitRepo         # GitRepo resource provides connectivity to the specified GitHub repo
     configuration:
-      gitProvider: githubIntegration                      # Name of GitHub integration, which provides connectivity to GitHub repo
-      path: dt-demos/jfrog-pipelines-dynatrace-example    # GitHub Repo path, if path is modified, change the resource name as well
+      gitProvider: githubIntegration                      
+      path: dt-demos/jfrog-pipelines-dynatrace-example    
       branches:
         include: demo
       buildOn:
@@ -20,24 +21,24 @@ resources:
   - name: catalogDockerImage
     type: Image
     configuration:
-      registry: artifactoryIntegration                                    # Name of Docker integration in Artifactory instance
-      sourceRepository: default-docker-local                              # Docker repository name
-      imageName: dynatracedemos.jfrog.io/art-docker-dynatrace/catalog       # Docker image name
+      registry: artifactoryIntegration                                    
+      sourceRepository: default-docker-local                             
+      imageName: dynatracedemos.jfrog.io/art-docker-dynatrace/catalog     
       imageTag: ${run_number}
 
   - name: catalogBuildInfo
     type: BuildInfo
     configuration:
-      sourceArtifactory: artifactoryIntegration         # Your Artifactory integration
-      buildName: catalog                                  # The name of the application image
+      sourceArtifactory: artifactoryIntegration   
+      buildName: catalog                                 
       buildNumber: ${run_number}
 
   - name: catalogHelmChart
     type: HelmChart
     configuration:
-      sourceArtifactory: artifactoryIntegration       # Your Artifactory integration
-      repository: art_dynatrace_charts                # Helm chart repository in your Artifactory instance
-      chart: catalog                                  # The name of the Helm chart
+      sourceArtifactory: artifactoryIntegration       
+      repository: art_dynatrace_charts                
+      chart: catalog                           
       version: 0.1.0                              
 
 pipelines:
@@ -45,10 +46,11 @@ pipelines:
     configuration:
       environmentVariables:
         readOnly:
-          RELEASE_NAME: "catalog"
-        catalog-version:
-          default: 1
-          allowCustom: true
+          DT_TAG_PROJECT: "dt-orders"
+          DT_TAG_STAGE: "dev"
+          DT_TAG_SERVICE: "order-service"
+          CHART_REPO: ${res_catalogHelmChart_repository}
+
     steps:
       - name: DockerBuild
         type: DockerBuild
@@ -59,15 +61,11 @@ pipelines:
           inputResources:
             - name: gitRepo
             - name: catalogFileSpec
-          dockerFileLocation: catalog      # Relative location of the Dockerfile in the GitHub repo
+          dockerFileLocation: catalog
           dockerFileName: Dockerfile
           dockerImageName: dynatracedemos.jfrog.io/art-docker-dynatrace/catalog
           dockerImageTag: ${run_number}
           dockerOptions: --build-arg RESOURCE_PATH=${res_catalogFileSpec_resourcePath}
-        execution:
-          onStart:
-            - echo ${res_catalogFileSpec_resourcePath}
-            - ls -l ${res_catalogFileSpec_resourcePath}
 
       - name: DockerPush
         type: DockerPush
@@ -75,19 +73,19 @@ pipelines:
           affinityGroup: buildAndPush
           autoPublishBuildInfo: true
           integrations:
-            - name: artifactoryIntegration                  # Your Artifactory integration
-          targetRepository: art-docker-dynatrace            # Docker repository, where the image will be pushed
+            - name: artifactoryIntegration                  
+          targetRepository: art-docker-dynatrace            
           inputSteps:
             - name: DockerBuild
           outputResources:
-            - name: catalogBuildInfo                         # Build info updated after the step execution
-            - name: catalogDockerImage                       # Docker image resource, created after the step execution
+            - name: catalogBuildInfo                         
+            - name: catalogDockerImage                       
 
       - name: HelmPublish
         type: HelmPublish
         configuration:
           affinityGroup: helm_install
-          helmVersion: 3                                    # Use Helm version 3 to build the Helm chart
+          helmVersion: 3                                    
           chartPath: chart
           inputSteps:
             - name: DockerPush
@@ -96,7 +94,7 @@ pipelines:
               trigger: false
             - name: catalogDockerImage
           outputResources:
-            - name: catalogHelmChart                        # Helm chart will be created and pushed to the repo, declared in catalogHelmChart resource
+            - name: catalogHelmChart                        
         execution:
           onStart:
             - APP_VERSION=0.0.$run_number
@@ -130,13 +128,10 @@ pipelines:
           inputSteps:
             - name: HelmPublish
         execution:
-          onStart:
-            - printenv
-            - cat ${KUBECONFIG}
-            - kubectl config current-context
-            - add_run_variables CLUSTER="$(kubectl config current-context)"
           onSuccess:
+            - kubectl config current-context
             - kubectl get pods --all-namespaces
+            - add_run_variables CLUSTER="$(kubectl config current-context)"
 
       - name: modifyHelmChartProperties
         type: Bash
@@ -146,21 +141,15 @@ pipelines:
             - name: artifactoryIntegration
           inputResources:
             - name: catalogHelmChart
+            - name: gitRepo
           inputSteps:
             - name: HelmDeploy
         execution:
           onExecute:
-            - printenv
-            - echo "Modifying helm chart properties"
-            - echo "${int_artifactoryIntegration_url}/api/storage/art_dynatrace_charts/catalog-${res_catalogHelmChart_version}.tgz"
-            - echo "deployedOnCluster=${CLUSTER}"
-            - echo "helmInstallationName=${RELEASE_NAME}"
-            - echo "deploymentTimestamp=${TIME}"
-            - echo "Set current time as a deployment time"
-            - TIME=$(date +%s)
-            - curl -v --location --request PUT "${int_artifactoryIntegration_url}/api/storage/art_dynatrace_charts/catalog-${res_catalogHelmChart_version}.tgz?properties=deployedOnCluster=${CLUSTER}%7ChelmInstallationName=${RELEASE_NAME}%7CdeploymentTimestamp=${TIME}" --header "Accept:application/json" --header "X-Jfrog-Art-Api:${int_artifactoryIntegration_apikey}"
-          onFailure:
-            - echo "Failure"
+            - JFROG_BASE_URL=${int_artifactoryIntegration_url
+            - JFROG_API_KEY=${int_artifactoryIntegration_apikey}
+            - CHART=catalog-${res_catalogHelmChart_version}
+            - $res_gitRepo_resourcePath/updateHelmChartProperties.sh ${JFROG_BASE_URL} ${JFROG_API_KEY} ${CHART_REPO} ${CHART} ${CLUSTER}
 
       - name: postDynatraceEvent
         type: Bash
@@ -177,14 +166,7 @@ pipelines:
           onExecute:
             - DT_BASEURL=${int_dynatraceIntegration_DT_URL}
             - DT_API_TOKEN=${int_dynatraceIntegration_DT_API_TOKEN}
-            - DEPLOYMENT_PROJECT=dt-orders
-            - TAG_STAGE=dev
-            - TAG_SERVICE=order-service
             - DEPLOYMENT_VERSION=${run_number}
-            - CI_BACK_LINK="https://www.jfrog.com"
+            - CI_BACK_LINK=${JFROG_CLI_BUILD_URL}
             - SOURCE="JFrog pipeline"
-            - OUTPUT=$($res_gitRepo_resourcePath/sendDynatraceEvent.sh ${DT_BASEURL} ${DT_API_TOKEN} ${DEPLOYMENT_PROJECT} ${TAG_STAGE} ${TAG_SERVICE} ${DEPLOYMENT_VERSION} ${CI_BACK_LINK} ${SOURCE})
-          onSuccess:
-            - echo "$OUTPUT"
-          onFailure:
-            - echo "$OUTPUT" 
+            - $res_gitRepo_resourcePath/sendDynatraceEvent.sh ${DT_BASEURL} ${DT_API_TOKEN} ${DT_TAG_PROJECT} ${DT_TAG_STAGE} ${DT_TAG_SERVICE} ${DEPLOYMENT_VERSION} ${CI_BACK_LINK} ${SOURCE}
