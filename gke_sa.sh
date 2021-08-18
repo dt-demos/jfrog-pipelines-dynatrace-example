@@ -21,27 +21,28 @@
 # You must configure your local kubectl to point to the right k8s cluster and
 # have admin-level access.
 
+
 set -eu -o pipefail
 
 # Allow passing in common name and username in environment. If not provided,
 # use default.
-SA_NAME=pipelines-sa
-NAMESPACE=pipelines
+SA_NAME=dev-sa
+NAMESPACE=dev
 
 # Set OS specific values.
 if [[ "$OSTYPE" == "linux-gnu" ]]; then
-    BASE64_DECODE_FLAG="-d"
-elif [[ "$OSTYPE" == "darwin"* ]]; then
-    BASE64_DECODE_FLAG="-D"
-elif [[ "$OSTYPE" == "linux-musl" ]]; then
-    BASE64_DECODE_FLAG="-d"
-else
-    echo "Unknown OS ${OSTYPE}"
-    exit 1
-fi
+            BASE64_DECODE_FLAG="-d"
+    elif [[ "$OSTYPE" == "darwin"* ]]; then
+                BASE64_DECODE_FLAG="-D"
+        elif [[ "$OSTYPE" == "linux-musl" ]]; then
+                    BASE64_DECODE_FLAG="-d"
+            else
+                        echo "Unknown OS ${OSTYPE}"
+                            exit 1
+        fi
 
-echo "Creating the Kubernetes Service Account with required RBAC permissions."
-kubectl apply -f - <<EOF
+        echo "Creating the Kubernetes Service Account with required RBAC permissions."
+        kubectl apply -f - <<EOF
 apiVersion: v1
 kind: Namespace
 metadata:
@@ -56,7 +57,7 @@ metadata:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: dynatrace-role
+  name: teleport-role
 rules:
 - apiGroups:
   - "*"
@@ -104,11 +105,11 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: dynatrace-crb
+  name: teleport-crb
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: dynatrace-role
+  name: teleport-role
 subjects:
 - kind: ServiceAccount
   name: ${SA_NAME}

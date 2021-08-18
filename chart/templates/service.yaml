@@ -4,14 +4,14 @@ metadata:
   name: catalog
   namespace: {{ .Values.namespace }}
   labels:
-    app.kubernetes.io/part-of: dt-orders
-    app.kubernetes.io/name: catalog-service
+    app: catalog-service
+    part-of: dt-orders
 spec:
   ports:
     - port: 8080
       targetPort: 8080
       name: catalog
   selector:
-    app.kubernetes.io/part-of: dt-orders
-    app.kubernetes.io/name: catalog-service
-  type: ClusterIP
+    app: catalog-service
+    part-of: dt-orders
+  type: LoadBalancer

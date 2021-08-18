@@ -10,6 +10,4 @@ imagePullPolicy: Always
 
 # regcred = kubectl secret name
 # https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
-global:
-  imagePullSecrets:
-    - regcred       
+imagePullSecrets: regcred       
