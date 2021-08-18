@@ -144,7 +144,7 @@ pipelines:
             - kubectl config current-context
             - add_run_variables CLUSTER="$(kubectl config current-context)"
           onSuccess:
-            - kubectl -n dev get pods
+            - kubectl get pods --all-namespaces
 
       - name: modifyHelmChartProperties
         type: Bash
