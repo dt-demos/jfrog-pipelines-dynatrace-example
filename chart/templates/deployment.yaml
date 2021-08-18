@@ -3,13 +3,6 @@ kind: Deployment
 metadata:
   name: catalog
   namespace: {{ .Values.namespace }}
-  labels:
-    app.kubernetes.io/name: catalog-service
-    app.kubernetes.io/version: {{ .Values.imageTag }}
-    app.kubernetes.io/component: service
-    app.kubernetes.io/part-of: dt-orders
-    app.kubernetes.io/managed-by: helm
-    app.kubernetes.io/created-by: dynatrace-demos
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
