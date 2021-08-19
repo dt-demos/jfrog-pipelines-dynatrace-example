@@ -52,7 +52,6 @@ pipelines:
             - name: artifactoryIntegration
           inputResources:
             - name: gitRepo
-            - name: demoappBuildFiles
           dockerFileLocation: demoapp
           dockerFileName: Dockerfile
           dockerImageName: dynatracedemos.jfrog.io/art-docker-dynatrace/demoapp
