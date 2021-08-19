@@ -24,7 +24,8 @@
         }
 
         a {
-            color: #55aaff;
+            color: white;
+            font-size: 125%;
         }
 
         .textColumn, .linksColumn {
@@ -42,7 +43,7 @@
             bottom: 0px;
             left: 0px;
             text-align: left;
-            padding-top: 11em;
+            padding-top: 7em;
         }
 
         .textColumn p {
@@ -56,7 +57,7 @@
             right: 0px;
             bottom: 0px;
             left: 25%;
-            background-color: #33342D;
+            background-color: black;
         }
 
         h1 {
@@ -96,35 +97,42 @@
     <div class="textColumn">
         <h2>Running Feature # FEATURE_NUMBER</h2>
         <br>
+        <br>
+        <br>
         <div>
-        <h3>Here are the "problems" we simulate. Can be adjusted on the fly by calling "/api/feature?newFeatureNumber=1"</h3>
+        <h3>Here are the "problems" we simulate. </h3>
+   
         <table style="color:black">
         <tr><th>#</th><th>Description</th></tr> 
-        <tr><td>1</td><td>no problem</td></tr> 
-        <tr><td>2</td><td>50% of /api/invoke requests return HTTP 500 Status Code</td></tr> 
-        <tr><td>3</td><td>Higher response times all requests</td></tr> 
+        <tr><td>1.&nbsp;</td><td>no problem</td></tr> 
+        <tr><td>2.&nbsp;</td><td>50% of /api/invoke requests return HTTP 500 Status Code</td></tr> 
+        <tr><td>3.&nbsp;</td><td>Higher response times all requests</td></tr> 
         </table>
+        <h4>Features be adjusted on the fly by calling "/api/feature?newFeatureNumber=1"</h4>
         </div>
+
+        <div>
+            <br>
+            <br>
+            <h2>Learn more about Dynatrace & JFrog</h2>
+            <div style="padding:12px;">
+            <ul>
+                <li><a href="https://www.dynatrace.com">Dynatrace</a></li>            
+                <li><a href="https://www.jfrog.com">JFrog</a></li> 
+            </ul>
+            </div>
+        </div>
+
     </div>
     <div class="linksColumn">
         <img width="800px"src="img/banner.png" />
 
         <table>
         <tr>
-            <div>
-                <h2>Learn more about Dynatrace & JFrog</h2>
-                <div style="padding:12px;">
-                <ul>
-                    <li><a href="https://www.dynatrace.com">Dynatrace</a></li>            
-                    <li><a href="https://www.jfrog.com">JFrog</a></li> 
-                </ul>
-                </div>
-            </div>
             <td>
+                <br>
+                <br>
             <h2>Lets trace some code!</h2>
-            <div style="padding:12px;">
-                Sleep Setting for trace requests (in ms): <input style="width:50px;" type="textbox" id="SleepTime" value="1000"></input>
-            </div>
 
             <div style="padding:12px;">
                 Say Something : <input style="width:300px;" type="textbox" id="SayText" value="Just say whatever you want"></input>
@@ -136,10 +144,14 @@
                 <button id="Invoke">Invoke</button>
             </div>
 
-            <div style="padding:12px;" id="loginarea">
+            <div style="padding:12px;">
+                Override sleep time for requests (in ms): <input style="width:50px;" type="textbox" id="SleepTime" value="1000"></input>
+            </div>
+
+            <!--<div style="padding:12px;" id="loginarea">
                 Your Username (for user tagging) : <input type="textbox" id="Username" value="Joe Mueller"></input>
                 <button id="Login">LOG ME IN</button>
-            </div>
+            </div>-->
 
             <div style="padding:12px;">
                 <button id="Feature">GET CURRENT FEATURE ID</button>
@@ -149,6 +161,7 @@
                 <hr>
                 <p id="result">Results will show up here</p>
             </div>
+
         </td>
         </tr>
         </table>
