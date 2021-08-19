@@ -146,18 +146,17 @@ pipelines:
       - name: fConfigureDynatrace
         type: Bash
         configuration:
-          affinityGroup: Dynatrace
-          integrations:
-            - name: dynatraceIntegration
+          runtime:
+            type: host
           inputResources:
             - name: gitRepo
-          inputSteps:
-            - name: eModifyHelmChartProperties
+          integrations:
+            - name: dynatraceIntegration
         execution:
           onExecute:
             - DT_BASEURL=${int_dynatraceIntegration_DT_URL}
             - DT_API_TOKEN=${int_dynatraceIntegration_DT_API_TOKEN}
-            - $res_gitRepo_resourcePath/scripts/configureDynatrace.sh ${DT_BASEURL} ${DT_API_TOKEN} ${DT_TAG_PROJECT} ${DT_TAG_STAGE} ${DT_TAG_SERVICE}
+            - docker run -e DT_BASEURL=$DT_BASEURL -e DT_API_TOKEN=$DT_API_TOKEN -e NEW_CLI=1 -v $res_gitRepo_resourcePath:/monaco-mount/ dynatraceace/monaco-runner:release-v1.5.3 "monaco deploy -v --environments /monaco-mount/monaco/environments.yml --project demoapp /monaco-mount/monaco/projects"
 
       - name: gPostDynatraceEvent
         type: Bash
