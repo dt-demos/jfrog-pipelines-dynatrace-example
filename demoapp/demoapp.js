@@ -1,4 +1,5 @@
-// Thank you to Andi Grabner (https://github.com/grabnerandi) for original application concept and code!
+// Thanks to Andi Grabner (https://github.com/grabnerandi/simplenodeservice) 
+// for the original application concept and code!
 
 var port = process.env.PORT || 8080,
     http = require('http'),

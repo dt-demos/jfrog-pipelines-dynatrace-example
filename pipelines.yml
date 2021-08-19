@@ -16,7 +16,7 @@ resources:
       registry: artifactoryIntegration                                    
       sourceRepository: default-docker-local                             
       imageName: dynatracedemos.jfrog.io/art-docker-dynatrace/demoapp     
-      imageTag: ${run_number}
+      imageTag: 0.${}${run_number}
 
   - name: demoappBuildInfo
     type: BuildInfo
@@ -45,27 +45,26 @@ pipelines:
 
     steps:
 
-      - name: aaTestMonaco
+      - name: aaSendSomeTraffic
         type: Bash
         configuration:
-          runtime:
-            type: host
           inputResources:
             - name: gitRepo
           integrations:
-            - name: dynatraceIntegration
+            - name: k8sIntegration
+          #inputSteps:
+          #  - name: gPostDynatraceEvent
         execution:
           onExecute:
-            - DT_BASEURL=${int_dynatraceIntegration_DT_URL}
-            - DT_API_TOKEN=${int_dynatraceIntegration_DT_API_TOKEN}
-            - docker run -e DT_BASEURL=$DT_BASEURL -e DT_API_TOKEN=$DT_API_TOKEN -e NEW_CLI=1 -v $res_gitRepo_resourcePath:/monaco-mount/ dynatraceace/monaco-runner:release-v1.5.3 "monaco deploy -v --environments /monaco-mount/monaco/environments.yml --project demoapp /monaco-mount/monaco/projects"
+            - kubectl config current-context
+            - APP_IP=$(kubectl -n dev get service demoapp -o jsonpath="{.status.loadBalancer.ingress[0].ip}")
+            - APP_URL="http://${APP_IP}:8080"
+            - $res_gitRepo_resourcePath/scripts/sendSomeTraffic.sh ${APP_URL}
 
       - name: aDockerBuild
         type: DockerBuild
         configuration:
           affinityGroup: buildAndPush
-          inputSteps:
-            - name: aaTestMonaco
           integrations:
             - name: artifactoryIntegration
           inputResources:

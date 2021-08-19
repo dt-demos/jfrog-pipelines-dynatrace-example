@@ -10,6 +10,10 @@ The app also comes with 4 built-in "feature" behaviors - meaning - if you launch
 | 2 | 50% Failure Rate of /api/invoke|
 | 3 | Higher response times all requests|
 
+As shown below, the web UI will change colors based on the enabled feature.
+
+![app](../images/app.png)
+
 # Development
 
 1. You must have node installed locally.
