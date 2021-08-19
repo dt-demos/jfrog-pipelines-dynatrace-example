@@ -68,26 +68,6 @@ var getBackgroundColor = function() {
 }
 
 // ======================================================================
-// This is for logging
-// ======================================================================
-var logstream = fs.createWriteStream('./serviceoutput.log');
-var SEVERITY_DEBUG = "Debug";
-var SEVERITY_INFO = "Info";
-var SEVERITY_WARNING = "Warning";
-var SEVERITY_ERROR = "Error";
-
-var log = function(severity, entry) {
-	// console.log(entry);
-	if (severity === SEVERITY_DEBUG) {
-		// dont log debug
-	} else {
-		var logEntry = new Date().toISOString() + ' - ' + severity + " - " + entry + '\n';
-		// fs.appendFileSync('./serviceoutput.log', new Date().toISOString() + ' - ' + severity + " - " + entry + '\n');
-		logstream.write(logEntry);
-	}
-};
-
-// ======================================================================
 // Very inefficient way to "sleep"
 // ======================================================================
 function sleep(time) {
@@ -111,12 +91,12 @@ function sleep(time) {
 var server = http.createServer(function (req, res) {
 
 	// debugging
-	//console.log(`${req.method} ${req.url}`);
+	// console.log(`${req.method} ${req.url}`);
 	// parse URL
 	const parsedUrl = urlModule.parse(req.url);
 	// extract URL path
 	let pathname = `.${parsedUrl.pathname}`;
-	// based on the URL path, extract the file extention. e.g. .js, .doc, ...
+	// based on the URL path, extract the file extension. e.g. .js, .doc, ...
 	const extName = path.parse(pathname).ext;
 	// mimeMaps file extention to MIME types
 	const mimeMap = {
@@ -143,9 +123,9 @@ var server = http.createServer(function (req, res) {
 
         req.on('end', function() {
             if (req.url === '/') {
-                log(SEVERITY_DEBUG, 'Received message: ' + body);
+                //console.log('Received message: ' + body);
             } else if (req.url = '/scheduled') {
-                log(SEVERITY_DEBUG, 'Received task ' + req.headers['x-aws-sqsd-taskname'] + ' scheduled at ' + req.headers['x-aws-sqsd-scheduled-at']);
+                //console.log('Received task ' + req.headers['x-aws-sqsd-taskname'] + ' scheduled at ' + req.headers['x-aws-sqsd-scheduled-at']);
             }
 
             res.writeHead(200, 'OK', {'Content-Type': 'text/plain'});
@@ -158,7 +138,7 @@ var server = http.createServer(function (req, res) {
         // sleep a bit :-)
 		var sleeptime = parseInt(url.query["sleep"]);
 		if(sleeptime === 0) sleeptime = minSleep;
-		log(SEVERITY_DEBUG, "Sleeptime: " + sleeptime);
+		//console.log("Sleeptime: " + sleeptime);
 		sleep(sleeptime);
 
 		// figure out which API call they want to execute
@@ -199,8 +179,8 @@ var server = http.createServer(function (req, res) {
               	path: '/'
             };
 			var result = http.get(urlRequest, function(getResponse) {
-				log(SEVERITY_DEBUG, 'STATUS: ' + getResponse.statusCode);
-				log(SEVERITY_DEBUG, 'HEADERS: ' + JSON.stringify(getResponse.headers));
+				//console.log('STATUS: ' + getResponse.statusCode);
+				//console.log('HEADERS: ' + JSON.stringify(getResponse.headers));
 
 				// Buffer the body entirely for processing as a whole.
 				var bodyChunks = [];
@@ -208,17 +188,17 @@ var server = http.createServer(function (req, res) {
 					bodyChunks.push(chunk);
 				}).on('end', function() {
 					var body = Buffer.concat(bodyChunks);
-				  	log(SEVERITY_DEBUG, 'BODY: ' + body);
-				  	status = "Request to '" + url.query["url"] + "' returned with HTTP Status: " + getResponse.statusCode + " and response body length: " + body.length;
-				  	res.writeHead(returnStatusCode, returnStatusCode == 200 ? 'OK' : 'ERROR', {'Content-Type': 'text/plain'});	
-				  	res.write(status);
-				  	res.end();
+					//console.log('BODY: ' + body);
+					status = "Request to '" + url.query["url"] + "' returned with HTTP Status: " + getResponse.statusCode + " and response body length: " + body.length;
+					res.writeHead(returnStatusCode, returnStatusCode == 200 ? 'OK' : 'ERROR', {'Content-Type': 'text/plain'});	
+					res.write(status);
+					res.end();
 				}).on('error', function(error) {
-				  	status = "Request to '" + url.query["url"] + "' returned in an error: " + error;
-				  	res.writeHead(returnStatusCode, returnStatusCode == 200 ? 'OK' : 'ERROR', {'Content-Type': 'text/plain'});	
-				  	res.write(status);
-				  	res.end();					
-				  	log(SEVERITY_INFO, status);
+					status = "Request to '" + url.query["url"] + "' returned in an error: " + error;
+					res.writeHead(returnStatusCode, returnStatusCode == 200 ? 'OK' : 'ERROR', {'Content-Type': 'text/plain'});	
+					res.write(status);
+					res.end();					
+					log(SEVERITY_INFO, status);
 				})
 			});
 		}
@@ -238,7 +218,7 @@ var server = http.createServer(function (req, res) {
 
 		// usage: /api/causeerror
 		if(url.pathname === "/api/causeerror") {
-			log(SEVERITY_ERROR, "somebody called /api/causeerror");
+			//console.log("somebody called /api/causeerror");
 			status = "We just caused an error log entry"
 		}
 
@@ -275,7 +255,7 @@ var server = http.createServer(function (req, res) {
 	
 	requestCount++;
 	if(requestCount >= 100) {
-		log(SEVERITY_INFO, "Just served another 100 requests!");
+		console.log("Just served another 100 requests!");
 		requestCount = 0;
 	}
 });
@@ -288,4 +268,4 @@ server.listen(port);
 
 // Put a friendly message on the terminal
 console.log('Server running at http://127.0.0.1:' + port + '/');
-log(SEVERITY_INFO, "Service is up and running - feed me with data!");
+console.log("Service is up and running - feed me with data!");
