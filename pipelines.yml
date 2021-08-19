@@ -44,7 +44,7 @@ pipelines:
           FEATURE_NUMBER: "1"
 
     steps:
-      - name: 1DockerBuild
+      - name: aDockerBuild
         type: DockerBuild
         configuration:
           affinityGroup: buildAndPush
@@ -58,7 +58,7 @@ pipelines:
           dockerImageTag: ${run_number}
           dockerOptions: --build-arg FEATURE_NUMBER=${FEATURE_NUMBER}
 
-      - name: 2DockerPush
+      - name: bDockerPush
         type: DockerPush
         configuration:
           affinityGroup: buildAndPush
@@ -67,19 +67,19 @@ pipelines:
             - name: artifactoryIntegration                  
           targetRepository: art-docker-dynatrace            
           inputSteps:
-            - name: 1DockerBuild
+            - name: aDockerBuild
           outputResources:
             - name: demoappBuildInfo                         
             - name: demoappDockerImage                       
 
-      - name: 3HelmPublish
+      - name: cHelmPublish
         type: HelmPublish
         configuration:
           affinityGroup: HelmPublish
           helmVersion: 3                                    
           chartPath: chart
           inputSteps:
-            - name: 2DockerPush
+            - name: bDockerPush
           inputResources:
             - name: gitRepo
               trigger: false
@@ -102,7 +102,7 @@ pipelines:
             - cat Chart.yaml
             - popd
 
-      - name: 4HelmDeploy
+      - name: dHelmDeploy
         type: HelmDeploy
         configuration:
           lint: true
@@ -117,14 +117,14 @@ pipelines:
             - name: demoappHelmChart
             - name: demoappDockerImage
           inputSteps:
-            - name: 3HelmPublish
+            - name: cHelmPublish
         execution:
           onSuccess:
             - kubectl config current-context
             - kubectl get pods --all-namespaces
             - add_run_variables CLUSTER="$(kubectl config current-context)"
 
-      - name: 5ModifyHelmChartProperties
+      - name: eModifyHelmChartProperties
         type: Bash
         configuration:
           affinityGroup: HelmDeploy
@@ -134,7 +134,7 @@ pipelines:
             - name: demoappHelmChart
             - name: gitRepo
           inputSteps:
-            - name: 4HelmDeploy
+            - name: dHelmDeploy
         execution:
           onExecute:
             - JFROG_BASE_URL=${int_artifactoryIntegration_url}
@@ -143,7 +143,7 @@ pipelines:
             - CHART=demoapp-${res_demoappHelmChart_version}
             - $res_gitRepo_resourcePath/scripts/updateHelmChartProperties.sh ${JFROG_BASE_URL} ${JFROG_API_KEY} ${CHART_REPO} ${CHART} ${CLUSTER}
 
-      - name: 6ConfigureDynatrace
+      - name: fConfigureDynatrace
         type: Bash
         configuration:
           affinityGroup: Dynatrace
@@ -152,14 +152,14 @@ pipelines:
           inputResources:
             - name: gitRepo
           inputSteps:
-            - name: 5ModifyHelmChartProperties
+            - name: eModifyHelmChartProperties
         execution:
           onExecute:
             - DT_BASEURL=${int_dynatraceIntegration_DT_URL}
             - DT_API_TOKEN=${int_dynatraceIntegration_DT_API_TOKEN}
             - $res_gitRepo_resourcePath/scripts/configureDynatrace.sh ${DT_BASEURL} ${DT_API_TOKEN} ${DT_TAG_PROJECT} ${DT_TAG_STAGE} ${DT_TAG_SERVICE}
 
-      - name: 7PostDynatraceEvent
+      - name: gPostDynatraceEvent
         type: Bash
         configuration:
           affinityGroup: Dynatrace
@@ -169,7 +169,7 @@ pipelines:
             - name: gitRepo
             - name: demoappHelmChart
           inputSteps:
-            - name: 6ConfigureDynatrace
+            - name: fConfigureDynatrace
         execution:
           onExecute:
             - DT_BASEURL=${int_dynatraceIntegration_DT_URL}
