@@ -2,7 +2,7 @@
 
 URL=$1
 echo "Calling $URL..."
-for i in {1..100}; 
+for i in {1..500}; 
   do
     echo "loop $i"
     curl -s -I -X GET "$URL/" | head -n 1 | cut -d$' ' -f2;
