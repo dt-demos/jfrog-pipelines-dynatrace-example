@@ -52,6 +52,8 @@ pipelines:
             type: host
           inputResources:
             - name: gitRepo
+          integrations:
+            - name: artifactoryIntegration
         execution:
           onExecute:
             - DT_BASEURL=${int_dynatraceIntegration_DT_URL}
