@@ -260,7 +260,7 @@ var server = http.createServer(function (req, res) {
 		res.writeHead(200, 'OK', {'Content-Type': 'text/html'});
 
 		// replace featureNumber and background color
-		var finalHtml = html.replace("BACKGROUND-COLOR", getBackgroundColor()).replace("FEATURE_NUMBER", featureNumber).replace("ENVIRONMENT_NAME", environmentName);
+		var finalHtml = html.replace("BACKGROUND-COLOR", getBackgroundColor()).replace("FEATURE_NUMBER", featureNumber);
         res.write(finalHtml);
         res.end();
 	}
