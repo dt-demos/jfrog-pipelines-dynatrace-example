@@ -17,7 +17,9 @@ As shown below, the web UI will change colors based on the enabled feature.
 # Development
 
 1. You must have node installed locally.
-1. Once you clone the repo, you need to run npm install to download the required modules
+1. Once you clone the repo, you need to run npm install to download the required modules.  I used npm: '7.5.0',
+  node: '15.8.0'
+  
     ```
     npm update
     npm start
@@ -29,7 +31,7 @@ As shown below, the web UI will change colors based on the enabled feature.
 
     ```
     docker build --build-arg FEATURE_NUMBER=1 -t dt-demos/jfrog-demo-app:1.0.0 .
-    docker run -p 8080:8080 dt-demos/jfrog-demo-app:1.0.0
+    docker run -it -p 8080:8080 dt-demos/jfrog-demo-app:1.0.0
     ```
     
     Access the application @ http://127.0.0.1:8080/
