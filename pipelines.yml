@@ -16,14 +16,14 @@ resources:
       registry: artifactoryIntegration                                    
       sourceRepository: default-docker-local                             
       imageName: dynatracedemos.jfrog.io/art-docker-dynatrace/demoapp     
-      imageTag: 0.${}${run_number}
+      imageTag: 0.${FEATURE_NUMBER}.${run_number}
 
   - name: demoappBuildInfo
     type: BuildInfo
     configuration:
       sourceArtifactory: artifactoryIntegration   
       buildName: demoapp                                 
-      buildNumber: ${run_number}
+      buildNumber: 0.${FEATURE_NUMBER}.${run_number}
 
   - name: demoappHelmChart
     type: HelmChart
@@ -38,29 +38,12 @@ pipelines:
     configuration:
       environmentVariables:
         readOnly:
-          DT_TAG_PROJECT: "dt-orders"
+          DT_TAG_PROJECT: "dynatrace-demos"
           DT_TAG_STAGE: "dev"
-          DT_TAG_SERVICE: "order-service"
+          DT_TAG_SERVICE: "demoapp"
           FEATURE_NUMBER: "1"
 
     steps:
-
-      - name: aaSendSomeTraffic
-        type: Bash
-        configuration:
-          inputResources:
-            - name: gitRepo
-          integrations:
-            - name: k8sIntegration
-          #inputSteps:
-          #  - name: gPostDynatraceEvent
-        execution:
-          onExecute:
-            - kubectl config current-context
-            - APP_IP=$(kubectl -n dev get service demoapp -o jsonpath="{.status.loadBalancer.ingress[0].ip}")
-            - APP_URL="http://${APP_IP}:8080"
-            - $res_gitRepo_resourcePath/scripts/sendSomeTraffic.sh ${APP_URL}
-
       - name: aDockerBuild
         type: DockerBuild
         configuration:
@@ -72,7 +55,7 @@ pipelines:
           dockerFileLocation: demoapp
           dockerFileName: Dockerfile
           dockerImageName: dynatracedemos.jfrog.io/art-docker-dynatrace/demoapp
-          dockerImageTag: ${run_number}
+          dockerImageTag: 0.${FEATURE_NUMBER}.${run_number}
           dockerOptions: --build-arg FEATURE_NUMBER=${FEATURE_NUMBER}
 
       - name: bDockerPush
@@ -105,7 +88,7 @@ pipelines:
             - name: demoappHelmChart                        
         execution:
           onStart:
-            - APP_VERSION=0.0.$run_number
+            - APP_VERSION=0.${FEATURE_NUMBER}.${run_number}
             - VALUES_IMAGE=${res_demoappDockerImage_imageName}
             - VALUES_TAG=${res_demoappDockerImage_imageTag}
             - echo "CHART_VERSION = $CHART_VERSION"
@@ -191,7 +174,23 @@ pipelines:
           onExecute:
             - DT_BASEURL=${int_dynatraceIntegration_DT_URL}
             - DT_API_TOKEN=${int_dynatraceIntegration_DT_API_TOKEN}
-            - DEPLOYMENT_VERSION=${run_number}
+            - DEPLOYMENT_VERSION=0.${FEATURE_NUMBER}.${run_number}
             - CI_BACK_LINK=${JFROG_CLI_BUILD_URL}
             - SOURCE="JFrog pipeline"
             - $res_gitRepo_resourcePath/scripts/sendDynatraceEvent.sh ${DT_BASEURL} ${DT_API_TOKEN} ${DT_TAG_PROJECT} ${DT_TAG_STAGE} ${DT_TAG_SERVICE} ${DEPLOYMENT_VERSION} ${CI_BACK_LINK} ${SOURCE}
+
+      - name: hSendSomeTraffic
+        type: Bash
+        configuration:
+          inputResources:
+            - name: gitRepo
+          integrations:
+            - name: k8sIntegration
+          inputSteps:
+            - name: gPostDynatraceEvent
+        execution:
+          onExecute:
+            - kubectl config current-context
+            - APP_IP=$(kubectl -n dev get service demoapp -o jsonpath="{.status.loadBalancer.ingress[0].ip}")
+            - APP_URL="http://${APP_IP}:8080"
+            - $res_gitRepo_resourcePath/scripts/sendSomeTraffic.sh ${APP_URL}
