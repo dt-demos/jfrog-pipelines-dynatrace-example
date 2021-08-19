@@ -12,7 +12,8 @@ The repo contains a reference JFrog pipeline that showcases how to integrate Dyn
 | setup/ | Bash scripts used one time as part of the setup process |
 | scripts/ | Bash scripts called by the pipeline |
 | chart/ | Helm charts used for sample application deployment |
-| app/ | Sample application source code and Dockerfile |
+| app/ | Sample application source code and Dockerfile -- see [README](app/README.md)|
+| monaco/ | Dynatrace configuration files -- see [README](monaco/README.md) |
 | images/ | README images |
 
 # JFrog Pipeline integrations

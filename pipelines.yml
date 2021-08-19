@@ -53,12 +53,11 @@ pipelines:
           inputResources:
             - name: gitRepo
           integrations:
-            - name: artifactoryIntegration
+            - name: dynatraceIntegration
         execution:
           onExecute:
             - DT_BASEURL=${int_dynatraceIntegration_DT_URL}
             - DT_API_TOKEN=${int_dynatraceIntegration_DT_API_TOKEN}
-            - docker run -e NEW_CLI=1 dynatraceace/monaco-runner:release-v1.5.3 "monaco --version"
             - docker run -e DT_BASEURL=$DT_BASEURL -e DT_API_TOKEN=$DT_API_TOKEN -e NEW_CLI=1 -v $res_gitRepo_resourcePath:/monaco-mount/ dynatraceace/monaco-runner:release-v1.5.3 "monaco deploy -v --environments /monaco-mount/monaco/environments.yml --project demoapp /monaco-mount/monaco/projects"
 
       - name: aDockerBuild
