@@ -44,10 +44,22 @@ pipelines:
           FEATURE_NUMBER: "1"
 
     steps:
+
+      - name: aaTestMonaco
+        type: Bash
+        configuration:
+          runtime:
+            type: host
+        execution:
+          onExecute:
+            - docker run dynatraceace/monaco-runner:release-v1.5.3 "monaco --version"
+
       - name: aDockerBuild
         type: DockerBuild
         configuration:
           affinityGroup: buildAndPush
+          inputSteps:
+            - name: aaTestMonaco
           integrations:
             - name: artifactoryIntegration
           inputResources:
