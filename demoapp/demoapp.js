@@ -91,11 +91,18 @@ var log = function(severity, entry) {
 // Very inefficient way to "sleep"
 // ======================================================================
 function sleep(time) {
+
+	//console.log("in sleep. time before"+ time);
 	if(time < minSleep) time = minSleep;
+	//console.log("in sleep. time after"+ time);
+	if(!time) time = minSleep;
+	////console.log("in sleep. time after"+ time);
     var stop = new Date().getTime();
+	////console.log("in sleep. stop"+ stop);
     while(new Date().getTime() < stop + time) {
         ;
     }
+	//console.log("in sleep. done");
 }
 
 // ======================================================================
