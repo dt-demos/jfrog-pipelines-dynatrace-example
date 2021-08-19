@@ -9,36 +9,28 @@ resources:
         include: demo
       buildOn:
         commit: true
-  
-  - name: catalogBuildFiles
-    type: FileSpec
-    configuration:
-      sourceArtifactory: artifactoryIntegration
-      pattern: "art-maven-dynatrace/demos/dt-orders/catalog-service/1/catalog-service-1.jar"
-      recursive: false
-      flat: true
 
-  - name: catalogDockerImage
+  - name: demoappDockerImage
     type: Image
     configuration:
       registry: artifactoryIntegration                                    
       sourceRepository: default-docker-local                             
-      imageName: dynatracedemos.jfrog.io/art-docker-dynatrace/catalog     
+      imageName: dynatracedemos.jfrog.io/art-docker-dynatrace/demoapp     
       imageTag: ${run_number}
 
-  - name: catalogBuildInfo
+  - name: demoappBuildInfo
     type: BuildInfo
     configuration:
       sourceArtifactory: artifactoryIntegration   
-      buildName: catalog                                 
+      buildName: demoapp                                 
       buildNumber: ${run_number}
 
-  - name: catalogHelmChart
+  - name: demoappHelmChart
     type: HelmChart
     configuration:
       sourceArtifactory: artifactoryIntegration       
       repository: art_dynatrace_charts                
-      chart: catalog                           
+      chart: demoapp                           
       version: 0.1.0                              
 
 pipelines:
@@ -49,6 +41,7 @@ pipelines:
           DT_TAG_PROJECT: "dt-orders"
           DT_TAG_STAGE: "dev"
           DT_TAG_SERVICE: "order-service"
+          FEATURE_NUMBER: "1"
 
     steps:
       - name: DockerBuild
@@ -59,11 +52,12 @@ pipelines:
             - name: artifactoryIntegration
           inputResources:
             - name: gitRepo
-            - name: catalogBuildFiles
-          dockerFileLocation: catalog
+            - name: demoappBuildFiles
+          dockerFileLocation: demoapp
           dockerFileName: Dockerfile
-          dockerImageName: dynatracedemos.jfrog.io/art-docker-dynatrace/catalog
+          dockerImageName: dynatracedemos.jfrog.io/art-docker-dynatrace/demoapp
           dockerImageTag: ${run_number}
+          dockerOptions: --build-arg FEATURE_NUMBER=${FEATURE_NUMBER}
 
       - name: DockerPush
         type: DockerPush
@@ -76,8 +70,8 @@ pipelines:
           inputSteps:
             - name: DockerBuild
           outputResources:
-            - name: catalogBuildInfo                         
-            - name: catalogDockerImage                       
+            - name: demoappBuildInfo                         
+            - name: demoappDockerImage                       
 
       - name: HelmPublish
         type: HelmPublish
@@ -90,14 +84,14 @@ pipelines:
           inputResources:
             - name: gitRepo
               trigger: false
-            - name: catalogDockerImage
+            - name: demoappDockerImage
           outputResources:
-            - name: catalogHelmChart                        
+            - name: demoappHelmChart                        
         execution:
           onStart:
             - APP_VERSION=0.0.$run_number
-            - VALUES_IMAGE=${res_catalogDockerImage_imageName}
-            - VALUES_TAG=${res_catalogDockerImage_imageTag}
+            - VALUES_IMAGE=${res_demoappDockerImage_imageName}
+            - VALUES_TAG=${res_demoappDockerImage_imageTag}
             - echo "CHART_VERSION = $CHART_VERSION"
             - echo "VALUES_IMAGE = $VALUES_IMAGE"
             - echo "VALUES_TAG = $VALUES_TAG"
@@ -116,13 +110,13 @@ pipelines:
           dryRun: true 
           helmVersion: 3
           affinityGroup: HelmDeploy
-          releaseName: catalog
+          releaseName: demoapp
           integrations:
             - name: k8sIntegration
             - name: artifactoryIntegration
           inputResources:
-            - name: catalogHelmChart
-            - name: catalogDockerImage
+            - name: demoappHelmChart
+            - name: demoappDockerImage
           inputSteps:
             - name: HelmPublish
         execution:
@@ -138,7 +132,7 @@ pipelines:
           integrations:
             - name: artifactoryIntegration
           inputResources:
-            - name: catalogHelmChart
+            - name: demoappHelmChart
             - name: gitRepo
           inputSteps:
             - name: HelmDeploy
@@ -146,21 +140,37 @@ pipelines:
           onExecute:
             - JFROG_BASE_URL=${int_artifactoryIntegration_url}
             - JFROG_API_KEY=${int_artifactoryIntegration_apikey}
-            - CHART_REPO=${res_catalogHelmChart_repository}
-            - CHART=catalog-${res_catalogHelmChart_version}
+            - CHART_REPO=${res_demoappHelmChart_repository}
+            - CHART=demoapp-${res_demoappHelmChart_version}
             - $res_gitRepo_resourcePath/scripts/updateHelmChartProperties.sh ${JFROG_BASE_URL} ${JFROG_API_KEY} ${CHART_REPO} ${CHART} ${CLUSTER}
 
-      - name: postDynatraceEvent
+      - name: configureDynatrace
         type: Bash
         configuration:
-          affinityGroup: HelmDeploy
+          affinityGroup: Dynatrace
           integrations:
             - name: dynatraceIntegration
           inputResources:
             - name: gitRepo
-            - name: catalogHelmChart
           inputSteps:
             - name: modifyHelmChartProperties
+        execution:
+          onExecute:
+            - DT_BASEURL=${int_dynatraceIntegration_DT_URL}
+            - DT_API_TOKEN=${int_dynatraceIntegration_DT_API_TOKEN}
+            - $res_gitRepo_resourcePath/scripts/configureDynatrace.sh ${DT_BASEURL} ${DT_API_TOKEN} ${DT_TAG_PROJECT} ${DT_TAG_STAGE} ${DT_TAG_SERVICE}
+
+      - name: postDynatraceEvent
+        type: Bash
+        configuration:
+          affinityGroup: Dynatrace
+          integrations:
+            - name: dynatraceIntegration
+          inputResources:
+            - name: gitRepo
+            - name: demoappHelmChart
+          inputSteps:
+            - name: configureDynatrace
         execution:
           onExecute:
             - DT_BASEURL=${int_dynatraceIntegration_DT_URL}
