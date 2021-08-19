@@ -41,7 +41,7 @@ pipelines:
           DT_TAG_PROJECT: "dynatrace-demos"
           DT_TAG_STAGE: "dev"
           DT_TAG_SERVICE: "demoapp"
-          FEATURE_NUMBER: "2"
+          FEATURE_NUMBER: "3"
 
     steps:
       - name: aDockerBuild
@@ -152,6 +152,8 @@ pipelines:
             - name: gitRepo
           integrations:
             - name: dynatraceIntegration
+          inputSteps:
+            - name: eModifyHelmChartProperties
         execution:
           onExecute:
             - DT_BASEURL=${int_dynatraceIntegration_DT_URL}
