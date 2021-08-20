@@ -208,6 +208,5 @@ pipelines:
             - JFROG_PIPELINE_NAME=${pipeline_name}
             - JFROG_RUN_NUMBER=${run_number}
             - JFROG_PROJECT=${project_name}
-            - CUSTOM_PROPERTIES="{\"Test Scenario\":\"Stress Test\", \"Load Script\":\"My Test Script\"}"
             - TAG_RULE="[{\"meTypes\":\"SERVICE\",\"tags\":[{\"context\":\"ENVIRONMENT\",\"key\":\"service\",\"value\":\"customer\"}]}]"
-            - $res_gitRepo_resourcePath/scripts/sendDynatraceEvent.sh ${DT_BASEURL} ${DT_API_TOKEN} ${DT_TAG_PROJECT} ${DT_TAG_STAGE} ${DT_TAG_SERVICE} ${DEPLOYMENT_VERSION} ${CI_BACK_LINK} ${SOURCE}
+            - $res_gitRepo_resourcePath/scripts/sendDynatraceEvent.sh ${DT_BASEURL} ${DT_API_TOKEN} ${DEPLOYMENT_PROJECT} ${DEPLOYMENT_VERSION} ${CI_BACK_LINK} ${SOURCE} ${IMAGE_NAME} ${HELM_CHART} ${JFROG_USER} ${JFROG_ARTIFACTORY_URL} ${PIPELINE_REPO} ${JFROG_PIPELINE_NAME} ${JFROG_RUN_NUMBER} ${JFROG_PROJECT} ${TAG_RULE}
