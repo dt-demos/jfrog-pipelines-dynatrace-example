@@ -179,7 +179,7 @@ pipelines:
             - name: gitRepo
             - name: demoappHelmChart
           inputSteps:
-            - name: gConfigureDynatrace
+            - name: gModifyHelmChartProperties
         execution:
           onExecute:
             - DT_BASEURL=${int_dynatraceIntegration_DT_URL}
