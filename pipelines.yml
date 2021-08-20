@@ -37,11 +37,11 @@ pipelines:
   - name: dynatraceDemo
     configuration:
       environmentVariables:
-        DT_TAG_PROJECT: "dynatrace-demos"
-        DT_TAG_STAGE: "dev"
-        DT_TAG_SERVICE: "demoapp"
-        FEATURE_NUMBER: "1"
-        BUILD_NUMBER: 0.${FEATURE_NUMBER}.${run_number}
+        readOnly:
+          DT_TAG_PROJECT: "dynatrace-demos"
+          DT_TAG_STAGE: "dev"
+          DT_TAG_SERVICE: "demoapp"
+          FEATURE_NUMBER: "1"
 
     steps:
       - name: aDockerBuild
@@ -57,6 +57,9 @@ pipelines:
           dockerImageName: dynatracedemos.jfrog.io/art-docker-dynatrace/demoapp
           dockerImageTag: ${BUILD_NUMBER}
           dockerOptions: --build-arg FEATURE_NUMBER=${FEATURE_NUMBER}
+        execution:
+          onStart:
+            - add_run_variables BUILD_NUMBER=0.${FEATURE_NUMBER}.${run_number}
 
       - name: bDockerPush
         type: DockerPush
