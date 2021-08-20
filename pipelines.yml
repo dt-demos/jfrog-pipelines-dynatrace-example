@@ -33,13 +33,6 @@ resources:
       chart: demoapp                           
       version: 0.0.0  
 
-  - name: simpleHelmChartBuildInfo
-    type: BuildInfo
-    configuration:
-      sourceArtifactory: artifactoryIntegration
-      buildName: demoapp
-      buildNumber: 0.0.0
-
 pipelines:
   - name: dynatraceDemo
     configuration:
@@ -88,7 +81,6 @@ pipelines:
           affinityGroup: HelmPublish
           helmVersion: 3                                    
           chartPath: chart
-          autoPublishBuildInfo: true
           inputSteps:
             - name: bDockerPush
           inputResources:
@@ -97,7 +89,21 @@ pipelines:
             - name: demoappDockerImage
           outputResources:
             - name: demoappHelmChart
-            - name: simpleHelmChartBuildInfo
+        execution:
+          onStart:
+            - APP_VERSION=0.${FEATURE_NUMBER}.${run_number}
+            - VALUES_IMAGE=${res_demoappDockerImage_imageName}
+            - VALUES_TAG=${res_demoappDockerImage_imageTag}
+            - echo "CHART_VERSION = $CHART_VERSION"
+            - echo "VALUES_IMAGE = $VALUES_IMAGE"
+            - echo "VALUES_TAG = $VALUES_TAG"
+            - pushd $res_gitRepo_resourcePath/chart
+            - "sed -ie \"s|^image: .*$|image: $VALUES_IMAGE|\" values.yaml"
+            - "sed -ie \"s|^imageTag: .*$|imageTag: $VALUES_TAG|\" values.yaml"
+            - "sed -ie \"s|^appVersion: .*$|appVersion: $APP_VERSION|\" Chart.yaml"
+            - cat values.yaml
+            - cat Chart.yaml
+            - popd
 
       - name: dHelmDeploy
         type: HelmDeploy
