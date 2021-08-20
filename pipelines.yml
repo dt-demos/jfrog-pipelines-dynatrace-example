@@ -215,7 +215,7 @@ pipelines:
             - echo "CI_BACK_LINK = $CI_BACK_LINK"
             - echo "IMAGE_NAME = $IMAGE_NAME"
             - echo "HELM_CHART = $HELM_CHART"
-            - echo "JFROG_USER = $JFROG_USER""
+            - echo "JFROG_USER = $JFROG_USER"
             - echo "JFROG_ARTIFACTORY_URL = $JFROG_ARTIFACTORY_URL"
             - echo "PIPELINE_REPO = $PIPELINE_REPO"
             - echo "JFROG_PIPELINE_NAME = $JFROG_PIPELINE_NAME"
