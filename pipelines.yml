@@ -23,15 +23,15 @@ resources:
     configuration:
       sourceArtifactory: artifactoryIntegration   
       buildName: demoapp                                 
-      buildNumber: ${BUILD_NUMBER}
+      buildNumber: ${BUILD_NUMBER}                           
 
   - name: demoappHelmChart
     type: HelmChart
     configuration:
       sourceArtifactory: artifactoryIntegration       
-      repository: art_dynatrace_charts                
+      repository: art-helm-charts-dynatrace                
       chart: demoapp                           
-      version: 0.1.0                              
+      version: 0.1.0  
 
 pipelines:
   - name: dynatraceDemo
