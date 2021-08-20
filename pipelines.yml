@@ -197,6 +197,7 @@ pipelines:
           onExecute:
             - DT_BASEURL=${int_dynatraceIntegration_DT_URL}
             - DT_API_TOKEN=${int_dynatraceIntegration_DT_API_TOKEN}
+            - DEPLOYMENT_PROJECT=${project_name}
             - DEPLOYMENT_VERSION=${BUILD_NUMBER}
             - CI_BACK_LINK=${JFROG_CLI_BUILD_URL}
             - SOURCE="JFrog pipeline project ${JFROG_CLI_BUILD_PROJECT}"
