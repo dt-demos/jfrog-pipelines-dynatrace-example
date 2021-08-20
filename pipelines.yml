@@ -31,7 +31,7 @@ resources:
       sourceArtifactory: artifactoryIntegration       
       repository: art-helm-charts-dynatrace                
       chart: demoapp                           
-      version: 0.1.0  
+      version: 0.0.0  
 
 pipelines:
   - name: dynatraceDemo
@@ -88,11 +88,7 @@ pipelines:
               trigger: false
             - name: demoappDockerImage
           outputResources:
-            - name: demoappHelmChart                        
-        execution:
-          onComplete:
-            - cat values.yaml
-            - cat Chart.yaml
+            - name: demoappHelmChart
 
       - name: dHelmDeploy
         type: HelmDeploy
@@ -167,7 +163,7 @@ pipelines:
             - JFROG_BASE_URL=${int_artifactoryIntegration_url}
             - JFROG_API_KEY=${int_artifactoryIntegration_apikey}
             - CHART_REPO=${res_demoappHelmChart_repository}
-            - CHART=demoapp-${res_demoappHelmChart_version}
+            - add_run_variables CHART=demoapp-${res_demoappHelmChart_version}
             - $res_gitRepo_resourcePath/scripts/updateHelmChartProperties.sh ${JFROG_BASE_URL} ${JFROG_API_KEY} ${CHART_REPO} ${CHART} ${CLUSTER}
 
       - name: hPostDynatraceEvent
@@ -179,6 +175,7 @@ pipelines:
           inputResources:
             - name: gitRepo
             - name: demoappHelmChart
+            - name: demoappDockerImage
           inputSteps:
             - name: gModifyHelmChartProperties
         execution:
@@ -187,8 +184,13 @@ pipelines:
             - DT_API_TOKEN=${int_dynatraceIntegration_DT_API_TOKEN}
             - DEPLOYMENT_VERSION=${BUILD_NUMBER}
             - CI_BACK_LINK=${JFROG_CLI_BUILD_URL}
-            - SOURCE="JFrog pipeline"
-            - IMAGE_NAME=""
-            - HELM_CHART=""
-            - DEVELOPER=${step_triggered_by_identity_name}
+            - SOURCE="JFrog pipeline project ${JFROG_CLI_BUILD_PROJECT}"
+            - IMAGE_NAME="${res_demoappDockerImage_imageName}:${res_demoappDockerImage_imageTag}"
+            - HELM_CHART="${CHART}"
+            - JFROG_USER=${step_triggered_by_identity_name}
+            - JFROG_ARTIFACTORY_URL=${int_artifactoryIntegration_url}
+            - PIPELINE_REPO=${res_gitRepo_gitRepoRepositoryUrl}
+            - JFROG_PIPELINE_NAME=${pipeline_name}
+            - JFROG_RUN_NUMBER=${run_number}
+            - JFROG_PROJECT=${project_name}
             - $res_gitRepo_resourcePath/scripts/sendDynatraceEvent.sh ${DT_BASEURL} ${DT_API_TOKEN} ${DT_TAG_PROJECT} ${DT_TAG_STAGE} ${DT_TAG_SERVICE} ${DEPLOYMENT_VERSION} ${CI_BACK_LINK} ${SOURCE}
