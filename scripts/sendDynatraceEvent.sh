@@ -12,13 +12,11 @@ CI_BACK_LINK=$5
 SOURCE=$6
 IMAGE_NAME=$7
 HELM_CHART=$8
-JFROG_USER=$9
-JFROG_ARTIFACTORY_URL=${10}
-PIPELINE_REPO=${11}
-JFROG_PIPELINE_NAME=${12}
-JFROG_RUN_NUMBER=${13}
-JFROG_PROJECT=${14}
-TAG_RULE="${15}"
+PIPELINE_REPO=${9}
+JFROG_PIPELINE_NAME=${10}
+JFROG_RUN_NUMBER=${11}
+JFROG_PROJECT=${12}
+TAG_RULE="${13}"
 
 DT_TAG_PROJECT=$DT_TAG_PROJECT
 DT_API_URL="$DT_BASEURL/api/v1/events"
@@ -33,8 +31,6 @@ echo "CI_BACK_LINK        = $CI_BACK_LINK"
 echo "SOURCE              = $SOURCE"
 echo "IMAGE_NAME          = $IMAGE_NAME"
 echo "HELM_CHART          = $HELM_CHART"
-echo "JFROG_USER          = $JFROG_USER"
-echo "JFROG_ARTIFACTORY_URL=$JFROG_ARTIFACTORY_URL"
 echo "PIPELINE_REPO       = $PIPELINE_REPO"
 echo "JFROG_PIPELINE_NAME = $JFROG_PIPELINE_NAME"
 echo "JFROG_RUN_NUMBER    = $JFROG_RUN_NUMBER"
@@ -50,8 +46,6 @@ POST_DATA=$(cat <<EOF
       "deploymentProject" : "$JFROG_PROJECT" ,
       "ciBackLink" : "$CI_BACK_LINK",
       "customProperties": {
-          "JFrog User" : "$JFROG_USER",
-          "JFrog Artifactory URL" : "$JFROG_ARTIFACTORY_URL",
           "JFrog Project" : "$JFROG_PROJECT",
           "JFrog Pipeline Name" : "$JFROG_PIPELINE_NAME",
           "JFrog Run Number" : "$JFROG_RUN_NUMBER",
