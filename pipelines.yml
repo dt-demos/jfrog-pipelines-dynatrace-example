@@ -195,6 +195,7 @@ pipelines:
             - name: gModifyHelmChartProperties
         execution:
           onExecute:
+            - printenv
             - DT_BASEURL=${int_dynatraceIntegration_DT_URL}
             - DT_API_TOKEN=${int_dynatraceIntegration_DT_API_TOKEN}
             - DEPLOYMENT_PROJECT=DemoProject
@@ -210,4 +211,14 @@ pipelines:
             - JFROG_RUN_NUMBER=${run_number}
             - JFROG_PROJECT=${project_name}
             - TAG_RULE="{\"meTypes\":[\"PROCESS_GROUP_INSTANCE\"],\"tags\":[{\"context\":\"CONTEXTLESS\",\"key\":\"service\",\"value\":\"$DT_TAG_SERVICE\"},{\"context\":\"CONTEXTLESS\",\"key\":\"project\",\"value\":\"$DT_TAG_PROJECT\"},{\"context\":\"CONTEXTLESS\",\"key\":\"stage\",\"value\":\"$DT_TAG_STAGE\"}]}"
+            - echo "DEPLOYMENT_VERSION = $DEPLOYMENT_VERSION"
+            - echo "CI_BACK_LINK = $CI_BACK_LINK"
+            - echo "IMAGE_NAME = $IMAGE_NAME"
+            - echo "HELM_CHART = $HELM_CHART"
+            - echo "JFROG_USER = $JFROG_USER""
+            - echo "JFROG_ARTIFACTORY_URL = $JFROG_ARTIFACTORY_URL"
+            - echo "PIPELINE_REPO = $PIPELINE_REPO"
+            - echo "JFROG_PIPELINE_NAME = $JFROG_PIPELINE_NAME"
+            - echo "JFROG_RUN_NUMBER = $JFROG_RUN_NUMBER"
+            - echo "JFROG_PROJECT = $JFROG_PROJECT"
             - $res_gitRepo_resourcePath/scripts/sendDynatraceEvent.sh ${DT_BASEURL} ${DT_API_TOKEN} ${DEPLOYMENT_PROJECT} ${DEPLOYMENT_VERSION} ${CI_BACK_LINK} ${SOURCE} ${IMAGE_NAME} ${HELM_CHART} ${JFROG_USER} ${JFROG_ARTIFACTORY_URL} ${PIPELINE_REPO} ${JFROG_PIPELINE_NAME} ${JFROG_RUN_NUMBER} ${JFROG_PROJECT} ${TAG_RULE}
