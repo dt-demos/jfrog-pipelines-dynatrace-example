@@ -197,10 +197,10 @@ pipelines:
           onExecute:
             - DT_BASEURL=${int_dynatraceIntegration_DT_URL}
             - DT_API_TOKEN=${int_dynatraceIntegration_DT_API_TOKEN}
-            - DEPLOYMENT_PROJECT=${project_name}
+            - DEPLOYMENT_PROJECT=DemoProject
             - DEPLOYMENT_VERSION=${BUILD_NUMBER}
             - CI_BACK_LINK=${JFROG_CLI_BUILD_URL}
-            - SOURCE="JFrog pipeline project ${JFROG_CLI_BUILD_PROJECT}"
+            - SOURCE="JFrog"
             - IMAGE_NAME="${res_demoappDockerImage_imageName}:${res_demoappDockerImage_imageTag}"
             - HELM_CHART="${CHART}"
             - JFROG_USER=${step_triggered_by_identity_name}
