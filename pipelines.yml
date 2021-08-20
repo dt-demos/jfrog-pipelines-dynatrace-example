@@ -136,6 +136,7 @@ pipelines:
       - name: fConfigureDynatrace
         type: Bash
         configuration:
+          affinityGroup: Configuration
           runtime:
             type: host
           inputResources:
@@ -153,7 +154,7 @@ pipelines:
       - name: gModifyHelmChartProperties
         type: Bash
         configuration:
-          affinityGroup: HelmDeploy
+          affinityGroup: Configuration
           integrations:
             - name: artifactoryIntegration
           inputResources:
@@ -172,7 +173,7 @@ pipelines:
       - name: hPostDynatraceEvent
         type: Bash
         configuration:
-          affinityGroup: Dynatrace
+          affinityGroup: Configuration
           integrations:
             - name: dynatraceIntegration
           inputResources:
