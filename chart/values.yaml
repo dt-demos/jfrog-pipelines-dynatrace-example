@@ -3,8 +3,8 @@ replicaCount: 1
 namespace: dev
 
 # these values are updating by the pipeline
-image: ${res_demoappDockerImage_imageName}
-imageTag: ${res_demoappDockerImage_imageTag}
+image: IMAGE_PLACEHOLDER
+imageTag: IMAGE_TAG_PLACEHOLDER
 
 imagePullPolicy: Always
 
