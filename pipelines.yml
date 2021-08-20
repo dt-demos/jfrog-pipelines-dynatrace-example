@@ -16,14 +16,14 @@ resources:
       registry: artifactoryIntegration                                    
       sourceRepository: default-docker-local                             
       imageName: dynatracedemos.jfrog.io/art-docker-dynatrace/demoapp     
-      imageTag: 0.${FEATURE_NUMBER}.${run_number}
+      imageTag: ${BUILD_NUMBER}
 
   - name: demoappBuildInfo
     type: BuildInfo
     configuration:
       sourceArtifactory: artifactoryIntegration   
       buildName: demoapp                                 
-      buildNumber: 0.${FEATURE_NUMBER}.${run_number}
+      buildNumber: ${BUILD_NUMBER}
 
   - name: demoappHelmChart
     type: HelmChart
@@ -37,11 +37,11 @@ pipelines:
   - name: dynatraceDemo
     configuration:
       environmentVariables:
-        readOnly:
-          DT_TAG_PROJECT: "dynatrace-demos"
-          DT_TAG_STAGE: "dev"
-          DT_TAG_SERVICE: "demoapp"
-          FEATURE_NUMBER: "1"
+        DT_TAG_PROJECT: "dynatrace-demos"
+        DT_TAG_STAGE: "dev"
+        DT_TAG_SERVICE: "demoapp"
+        FEATURE_NUMBER: "1"
+        BUILD_NUMBER: 0.${FEATURE_NUMBER}.${run_number}
 
     steps:
       - name: aDockerBuild
@@ -55,7 +55,7 @@ pipelines:
           dockerFileLocation: demoapp
           dockerFileName: Dockerfile
           dockerImageName: dynatracedemos.jfrog.io/art-docker-dynatrace/demoapp
-          dockerImageTag: 0.${FEATURE_NUMBER}.${run_number}
+          dockerImageTag: ${BUILD_NUMBER}
           dockerOptions: --build-arg FEATURE_NUMBER=${FEATURE_NUMBER}
 
       - name: bDockerPush
@@ -87,20 +87,9 @@ pipelines:
           outputResources:
             - name: demoappHelmChart                        
         execution:
-          onStart:
-            - APP_VERSION=0.${FEATURE_NUMBER}.${run_number}
-            - VALUES_IMAGE=${res_demoappDockerImage_imageName}
-            - VALUES_TAG=${res_demoappDockerImage_imageTag}
-            - echo "CHART_VERSION = $CHART_VERSION"
-            - echo "VALUES_IMAGE = $VALUES_IMAGE"
-            - echo "VALUES_TAG = $VALUES_TAG"
-            - pushd $res_gitRepo_resourcePath/chart
-            - "sed -ie \"s|^image: .*$|image: $VALUES_IMAGE|\" values.yaml"
-            - "sed -ie \"s|^imageTag: .*$|imageTag: $VALUES_TAG|\" values.yaml"
-            - "sed -ie \"s|^appVersion: .*$|appVersion: $APP_VERSION|\" Chart.yaml"
+          onComplete:
             - cat values.yaml
             - cat Chart.yaml
-            - popd
 
       - name: dHelmDeploy
         type: HelmDeploy
@@ -141,26 +130,7 @@ pipelines:
             - APP_URL="http://${APP_IP}:8080"
             - $res_gitRepo_resourcePath/scripts/appUpCheck.sh ${APP_URL}
 
-      - name: fModifyHelmChartProperties
-        type: Bash
-        configuration:
-          affinityGroup: HelmDeploy
-          integrations:
-            - name: artifactoryIntegration
-          inputResources:
-            - name: demoappHelmChart
-            - name: gitRepo
-          inputSteps:
-            - name: eAppUpCheck
-        execution:
-          onExecute:
-            - JFROG_BASE_URL=${int_artifactoryIntegration_url}
-            - JFROG_API_KEY=${int_artifactoryIntegration_apikey}
-            - CHART_REPO=${res_demoappHelmChart_repository}
-            - CHART=demoapp-${res_demoappHelmChart_version}
-            - $res_gitRepo_resourcePath/scripts/updateHelmChartProperties.sh ${JFROG_BASE_URL} ${JFROG_API_KEY} ${CHART_REPO} ${CHART} ${CLUSTER}
-
-      - name: gConfigureDynatrace
+      - name: fConfigureDynatrace
         type: Bash
         configuration:
           runtime:
@@ -170,12 +140,31 @@ pipelines:
           integrations:
             - name: dynatraceIntegration
           inputSteps:
-            - name: fModifyHelmChartProperties
+            - name: eAppUpCheck
         execution:
           onExecute:
             - DT_BASEURL=${int_dynatraceIntegration_DT_URL}
             - DT_API_TOKEN=${int_dynatraceIntegration_DT_API_TOKEN}
             - docker run -e DT_BASEURL=$DT_BASEURL -e DT_API_TOKEN=$DT_API_TOKEN -e NEW_CLI=1 -v $res_gitRepo_resourcePath:/monaco-mount/ dynatraceace/monaco-runner:release-v1.5.3 "monaco deploy -v --environments /monaco-mount/monaco/environments.yml --project demoapp /monaco-mount/monaco/projects"
+
+      - name: gModifyHelmChartProperties
+        type: Bash
+        configuration:
+          affinityGroup: HelmDeploy
+          integrations:
+            - name: artifactoryIntegration
+          inputResources:
+            - name: demoappHelmChart
+            - name: gitRepo
+          inputSteps:
+            - name: fConfigureDynatrace
+        execution:
+          onExecute:
+            - JFROG_BASE_URL=${int_artifactoryIntegration_url}
+            - JFROG_API_KEY=${int_artifactoryIntegration_apikey}
+            - CHART_REPO=${res_demoappHelmChart_repository}
+            - CHART=demoapp-${res_demoappHelmChart_version}
+            - $res_gitRepo_resourcePath/scripts/updateHelmChartProperties.sh ${JFROG_BASE_URL} ${JFROG_API_KEY} ${CHART_REPO} ${CHART} ${CLUSTER}
 
       - name: hPostDynatraceEvent
         type: Bash
@@ -192,7 +181,10 @@ pipelines:
           onExecute:
             - DT_BASEURL=${int_dynatraceIntegration_DT_URL}
             - DT_API_TOKEN=${int_dynatraceIntegration_DT_API_TOKEN}
-            - DEPLOYMENT_VERSION=0.${FEATURE_NUMBER}.${run_number}
+            - DEPLOYMENT_VERSION=${BUILD_NUMBER}
             - CI_BACK_LINK=${JFROG_CLI_BUILD_URL}
             - SOURCE="JFrog pipeline"
+            - IMAGE_NAME=""
+            - HELM_CHART=""
+            - DEVELOPER=${step_triggered_by_identity_name}
             - $res_gitRepo_resourcePath/scripts/sendDynatraceEvent.sh ${DT_BASEURL} ${DT_API_TOKEN} ${DT_TAG_PROJECT} ${DT_TAG_STAGE} ${DT_TAG_SERVICE} ${DEPLOYMENT_VERSION} ${CI_BACK_LINK} ${SOURCE}
