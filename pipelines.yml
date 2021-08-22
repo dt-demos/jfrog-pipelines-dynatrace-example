@@ -196,8 +196,8 @@ pipelines:
         execution:
           onExecute:
             - printenv
-            - DT_BASEURL=${int_dynatraceIntegration_DT_URL}
-            - DT_API_TOKEN=${int_dynatraceIntegration_DT_API_TOKEN}
+            - add_run_variables DT_BASEURL=${int_dynatraceIntegration_DT_URL}
+            - add_run_variables DT_API_TOKEN=${int_dynatraceIntegration_DT_API_TOKEN}
             - DEPLOYMENT_PROJECT=DemoProject
             - DEPLOYMENT_VERSION=${BUILD_NUMBER}
             - CI_BACK_LINK=${JFROG_CLI_BUILD_URL}
