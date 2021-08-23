@@ -1,17 +1,22 @@
 #!/bin/bash
 
-# this script is used to send a Dynatrace push event
-# assumes three tags (project, service, stage) exist for the tag matching rule
-# reference: https://www.dynatrace.com/support/help/dynatrace-api/environment-api/events/post-event/
+# This is a pipeline 'demo' script that sends a Dynatrace Deployment information event
+# Any of the customProperties can be adjusted
+#
+# Script assumes all arguments are required and the TAG_RULE has escaped quotes is passed in.
+# for example: TAG_RULE: "[{\"meTypes\":\"SERVICE\",\"tags\":[{\"context\":\"ENVIRONMENT\",\"key\":\"service\",\"value\":\"customer\"}]}]"
+#
+# See the Dynatrace reference for other information event types
+# https://www.dynatrace.com/support/help/dynatrace-api/environment-api/events/post-event/
 
-DT_BASEURL=$1
-DT_API_TOKEN=$2
-DEPLOYMENT_PROJECT=$3
-DEPLOYMENT_VERSION=$4
-CI_BACK_LINK=$5
-SOURCE=$6
-IMAGE_NAME=$7
-HELM_CHART=$8
+DT_BASEURL=${1}
+DT_API_TOKEN=${2}
+DEPLOYMENT_PROJECT=${3}
+DEPLOYMENT_VERSION=${4}
+CI_BACK_LINK=${5}
+SOURCE=${6}
+IMAGE_NAME=${7}
+HELM_CHART=${8}
 PIPELINE_REPO=${9}
 JFROG_PIPELINE_NAME=${10}
 JFROG_RUN_NUMBER=${11}

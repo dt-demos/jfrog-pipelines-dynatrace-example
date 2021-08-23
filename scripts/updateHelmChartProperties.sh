@@ -1,6 +1,7 @@
 #!/bin/bash
 
-# this script is used to add/update these chart properties by calling the JFrog API
+# This script a pipeline 'demo' script that adds JFrog chart properties by calling the JFrog API
+# These can be adjusted, but these are the properties added
 # deployedOnCluster
 # deploymentTimestamp
 

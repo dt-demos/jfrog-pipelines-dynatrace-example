@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# This is a pipeline 'demo' script that checks whether the passed in URL is reachable
+# It will try a few times with a delay inbetween attempts
+# It will return with 'exit 1' if URL is not reachable
+
 URL=$1
 if [ -z "$URL" ]
 then
