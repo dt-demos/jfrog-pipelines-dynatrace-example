@@ -1,12 +1,14 @@
-resources:
+template: true
+valuesFilePath: ./values.yml
 
+resources:
   - name: gitRepo   
-    type: GitRepo         # GitRepo resource provides connectivity to the specified GitHub repo
+    type: GitRepo
     configuration:
-      gitProvider: githubIntegration                      
-      path: dt-demos/jfrog-pipelines-dynatrace-example    
+      gitProvider: {{ .Values.gitRepo.gitProvider }}                      
+      path: {{ .Values.gitRepo.path }}   
       branches:
-        include: demo
+        include: {{ .Values.gitRepo.branch }}   
       buildOn:
         commit: true
 

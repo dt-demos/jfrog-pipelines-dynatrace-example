@@ -1,0 +1,4 @@
+gitRepo:
+  gitProvider: githubIntegration                    # <-- replace with your GitRepo integration name
+  path: dt-demos/jfrog-pipelines-dynatrace-example  # <-- replace jfrog with your username or org name
+  branch: demo
