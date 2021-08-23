@@ -195,20 +195,19 @@ pipelines:
             - name: gModifyHelmChartProperties
         execution:
           onExecute:
-            - printenv
             - add_run_variables DT_BASEURL=${int_dynatraceIntegration_DT_URL}
             - add_run_variables DT_API_TOKEN=${int_dynatraceIntegration_DT_API_TOKEN}
-            - DEPLOYMENT_PROJECT=DemoProject
-            - DEPLOYMENT_VERSION=${BUILD_NUMBER}
-            - CI_BACK_LINK=${JFROG_CLI_BUILD_URL}
-            - SOURCE="JFrog"
-            - IMAGE_NAME="${res_demoappDockerImage_imageName}:${res_demoappDockerImage_imageTag}"
-            - HELM_CHART="${CHART}"
-            - PIPELINE_REPO=${res_gitRepo_gitRepoRepositoryUrl}
-            - JFROG_PIPELINE_NAME=${pipeline_name}
-            - JFROG_RUN_NUMBER=${run_number}
-            - JFROG_PROJECT=${project_name}
-            - TAG_RULE="{\"meTypes\":[\"PROCESS_GROUP_INSTANCE\"],\"tags\":[{\"context\":\"CONTEXTLESS\",\"key\":\"service\",\"value\":\"$DT_TAG_SERVICE\"},{\"context\":\"CONTEXTLESS\",\"key\":\"project\",\"value\":\"$DT_TAG_PROJECT\"},{\"context\":\"CONTEXTLESS\",\"key\":\"stage\",\"value\":\"$DT_TAG_STAGE\"}]}"
+            - add_run_variables DEPLOYMENT_PROJECT=DemoProject
+            - add_run_variables DEPLOYMENT_VERSION=${BUILD_NUMBER}
+            - add_run_variables CI_BACK_LINK=${JFROG_CLI_BUILD_URL}
+            - add_run_variables SOURCE="JFrog"
+            - add_run_variables IMAGE_NAME="${res_demoappDockerImage_imageName}:${res_demoappDockerImage_imageTag}"
+            - add_run_variables HELM_CHART="${CHART}"
+            - add_run_variables PIPELINE_REPO=${res_gitRepo_gitRepoRepositoryUrl}
+            - add_run_variables JFROG_PIPELINE_NAME=${pipeline_name}
+            - add_run_variables JFROG_RUN_NUMBER=${run_number}
+            - add_run_variables JFROG_PROJECT=${project_name}
+            - add_run_variables TAG_RULE="{\"meTypes\":[\"PROCESS_GROUP_INSTANCE\"],\"tags\":[{\"context\":\"CONTEXTLESS\",\"key\":\"service\",\"value\":\"$DT_TAG_SERVICE\"},{\"context\":\"CONTEXTLESS\",\"key\":\"project\",\"value\":\"$DT_TAG_PROJECT\"},{\"context\":\"CONTEXTLESS\",\"key\":\"stage\",\"value\":\"$DT_TAG_STAGE\"}]}"
             - echo "DEPLOYMENT_VERSION = $DEPLOYMENT_VERSION"
             - echo "CI_BACK_LINK = $CI_BACK_LINK"
             - echo "IMAGE_NAME = $IMAGE_NAME"
