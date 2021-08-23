@@ -18,13 +18,23 @@ The repo contains a reference JFrog pipeline that showcases how to integrate Dyn
 
 # JFrog Pipeline integrations
 
-Below are the integrations used in the reference pipeline. See the [JFrog Documentation](https://www.jfrog.com/confluence/display/JFROG/Pipelines+Integrations) for more details.
-| Integration | Comment |
-| ----------- | ------- |
-| Artifactory | Used to connect the JFrog Pipeline Automation platform to an installation of Artifactory to push artifacts including Docker images, and maintain build information |
-| Generic Integration | Used to store the Dynatrace URL and API tokens|
-| GitHub | Used to connect the JFrog Pipelines platform to GitHub. |
-| Kubernetes | Used to connect JFrog Pipelines platform to self-hosted Kubernetes clusters so that you can deploy Docker based applications.|
+[Integrations](https://www.jfrog.com/confluence/display/JFROG/Pipelines+Integrations) connect Pipelines to an external service/tool. Each integration type defines the endpoint, credentials and any other configuration detail required for Pipelines to exchange information with the service.  Below are the integrations used in this reference design:
+
+| Name | Type | Comment |
+| ------- | ----------- | ------- |
+| artifactoryIntegration | Artifactory | Stores the Artifactory URL and Token. |
+| dynatraceIntegration | Generic | Stores the configuration YAML to access Kubernetes cluster connection. |
+| githubIntegration | GitHub | Stores the GitHub URL and User Access Token the GitHub account where the pipeline code is stored. The GitHub user must have admin rights for the Pipelines repository. |
+| k8sIntegration | Kubernetes | Stores the Dynatrace instance URL and API token.  The API token is configured with the permissions for any APIs it calls. |
+
+# JFrog Artifactory Repositories
+
+The following set of [Artifactory Repositories](https://www.jfrog.com/confluence/display/JFROG/Repository+Management) are used:
+
+| Repository | Type | Comment |
+| ----------- | ------- | ------- | 
+| art-docker-dynatrace | Docker | Stores a collection of Docker images created by the pipeline. |
+| art-helm-charts-dynatrace | Helm | Stores a collection of Helm charts created by the pipeline.|
 
 # Setup Details
 
