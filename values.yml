@@ -1,4 +1,7 @@
 gitRepo:
-  gitProvider: githubIntegration                    # <-- replace with your GitRepo integration name
-  path: dt-demos/jfrog-pipelines-dynatrace-example  # <-- replace jfrog with your username or org name
+  path: dt-demos/jfrog-pipelines-dynatrace-example  # <-- replace 'dt-demos' with your github username or org name
+  gitProvider: githubIntegration                    
   branch: demo
+
+image:
+  imageName: dynatracedemos.jfrog.io/art-docker-dynatrace/demoapp  # <-- replace 'dynatracedemos' with your Artifactory account name

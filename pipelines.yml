@@ -17,7 +17,7 @@ resources:
     configuration:
       registry: artifactoryIntegration                                    
       sourceRepository: default-docker-local                             
-      imageName: dynatracedemos.jfrog.io/art-docker-dynatrace/demoapp     
+      imageName: {{ .Values.image.imageName }}       
       imageTag: ${BUILD_NUMBER}
 
   - name: demoappBuildInfo
@@ -56,7 +56,7 @@ pipelines:
             - name: gitRepo
           dockerFileLocation: demoapp
           dockerFileName: Dockerfile
-          dockerImageName: dynatracedemos.jfrog.io/art-docker-dynatrace/demoapp
+          dockerImageName: {{ .Values.image.imageName }}
           dockerImageTag: ${BUILD_NUMBER}
           dockerOptions: --build-arg FEATURE_NUMBER=${FEATURE_NUMBER}
         execution:
@@ -70,7 +70,7 @@ pipelines:
           autoPublishBuildInfo: true
           integrations:
             - name: artifactoryIntegration                  
-          targetRepository: art-docker-dynatrace            
+          targetRepository: art-docker-dynatrace           
           inputSteps:
             - name: aDockerBuild
           outputResources:
