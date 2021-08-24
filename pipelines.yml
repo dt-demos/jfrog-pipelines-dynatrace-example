@@ -211,3 +211,4 @@ pipelines:
             - JFROG_PROJECT=${project_name}
             - TAG_RULE="{\"meTypes\":[\"PROCESS_GROUP_INSTANCE\"],\"tags\":[{\"context\":\"CONTEXTLESS\",\"key\":\"service\",\"value\":\"$DT_TAG_SERVICE\"},{\"context\":\"CONTEXTLESS\",\"key\":\"project\",\"value\":\"$DT_TAG_PROJECT\"},{\"context\":\"CONTEXTLESS\",\"key\":\"stage\",\"value\":\"$DT_TAG_STAGE\"}]}"
             - $res_gitRepo_resourcePath/scripts/sendDynatraceEvent.sh ${DT_BASEURL} ${DT_API_TOKEN} ${DEPLOYMENT_PROJECT} ${DEPLOYMENT_VERSION} ${CI_BACK_LINK} ${SOURCE} ${IMAGE_NAME} ${HELM_CHART} ${PIPELINE_REPO} ${JFROG_PIPELINE_NAME} ${JFROG_RUN_NUMBER} ${JFROG_PROJECT} ${APP_URL} ${TAG_RULE}
+            
